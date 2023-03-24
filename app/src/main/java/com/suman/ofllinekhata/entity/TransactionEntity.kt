@@ -11,5 +11,7 @@ data class TransactionEntity(
     @ColumnInfo(name = "type") val type: Int?,
     @ColumnInfo(name = "desc") val description: String?,
     @ColumnInfo(name = "amount") val amount: Float?,
+    @ColumnInfo(name = "received") val received: Int?,
+    @ColumnInfo(name = "clear") val clear: Long?,
     @ColumnInfo(name = "time") val time: Long?
 )

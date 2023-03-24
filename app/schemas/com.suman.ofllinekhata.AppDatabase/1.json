@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "aaad8c3de451ccce7ae1627a40a4edd2",
+    "identityHash": "62812d08b7576dfa48539154426d2040",
     "entities": [
       {
         "tableName": "customer",
@@ -45,12 +45,22 @@
             "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_customer_number",
+            "unique": true,
+            "columnNames": [
+              "number"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_customer_number` ON `${TABLE_NAME}` (`number`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
         "tableName": "tran",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uid` INTEGER, `type` INTEGER, `desc` TEXT, `amount` REAL, `time` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uid` INTEGER, `type` INTEGER, `desc` TEXT, `amount` REAL, `received` INTEGER, `clear` INTEGER, `time` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -83,6 +93,18 @@
             "notNull": false
           },
           {
+            "fieldPath": "received",
+            "columnName": "received",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clear",
+            "columnName": "clear",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
             "fieldPath": "time",
             "columnName": "time",
             "affinity": "INTEGER",
@@ -102,7 +124,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'aaad8c3de451ccce7ae1627a40a4edd2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '62812d08b7576dfa48539154426d2040')"
     ]
   }
 }

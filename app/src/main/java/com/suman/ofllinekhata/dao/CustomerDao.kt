@@ -6,8 +6,11 @@ import org.jetbrains.annotations.NotNull
 
 @Dao
 interface CustomerDao {
-    @Query("SELECT * FROM customer order by time desc")
+    @Query("SELECT * FROM customer order by time DESC")
     suspend fun getAll(): List<CustomerEntity>
+
+    @Query("SELECT * FROM customer order by id DESC LIMIT 1")
+    suspend fun getLastUser(): List<CustomerEntity>
 
     @Query("SELECT SUM(`amount`) FROM customer WHERE amount < 0")
     suspend fun getTotalCredit(): Float?
