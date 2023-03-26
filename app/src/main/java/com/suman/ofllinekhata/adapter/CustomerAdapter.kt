@@ -28,17 +28,17 @@ class CustomerAdapter(val list: ArrayList<CustomerModel>): RecyclerView.Adapter<
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val customer = list[position]
         holder.name.text = customer.name
-        holder.number.text = "${customer.number}"
+        holder.number.text = customer.number
         holder.balance.text = "\u20B9${customer.balance}"
         holder.itemView.setOnClickListener {
-            mListener!!.onClick(customer.id!!)
+            mListener!!.onClick(customer.id, customer.name)
         }
     }
 
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         val name: TextView = itemView.findViewById(R.id.tv_customer_name)
-        val number: TextView = itemView.findViewById(R.id.tv_customer_number)
-        val balance: TextView = itemView.findViewById(R.id.tv_customer_balance)
+        val number: TextView = itemView.findViewById(R.id.tv_customer_phone)
+        val balance: TextView = itemView.findViewById(R.id.tv_customer_amount)
 
     }
 }

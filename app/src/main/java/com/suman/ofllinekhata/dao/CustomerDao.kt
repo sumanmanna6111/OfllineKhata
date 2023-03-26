@@ -15,6 +15,9 @@ interface CustomerDao {
     @Query("SELECT SUM(`amount`) FROM customer WHERE amount < 0")
     suspend fun getTotalCredit(): Float?
 
+    @Query("SELECT SUM(`amount`) FROM customer WHERE amount > 0")
+    suspend fun getTotalDebit(): Float?
+
     @Query("SELECT * FROM customer WHERE id IN (:userIds)")
     suspend fun loadAllByIds(userIds: IntArray): List<CustomerEntity>
 

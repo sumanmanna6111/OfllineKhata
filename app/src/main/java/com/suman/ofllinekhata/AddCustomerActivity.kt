@@ -33,7 +33,6 @@ class AddCustomerActivity : AppCompatActivity() {
         }
         binding.btnAddCustomer.setOnClickListener {
             addCustomer()
-
         }
         binding.ilCustName.setEndIconOnClickListener {
             val i = Intent(Intent.ACTION_PICK)
@@ -59,7 +58,8 @@ class AddCustomerActivity : AppCompatActivity() {
         var amount: Float = binding.edCustomerAmount.text.toString().toFloat()
         val description: String = binding.edCustomerDesc.text.toString()
         val time: Long = System.currentTimeMillis()
-
+        val msg:String = String.format("Hi, %s you have purchase Rs.%f from %s.\nYour total Due is Rs.%f", name, amount, "Suman Manna", amount )
+        SMSManager.sendSMS(number, msg)
         CoroutineScope(Dispatchers.IO).launch {
             val db = Room.databaseBuilder(
                 applicationContext,
@@ -83,13 +83,11 @@ class AddCustomerActivity : AppCompatActivity() {
                         time
                     )
                 )
-                SMSManager.sendSMS(number, "hello")
+
                 finish()
             }catch (e: Exception){
                 Log.d(TAG, "addCustomer: ${e.printStackTrace()}")
             }
-
-
 
         }
     }

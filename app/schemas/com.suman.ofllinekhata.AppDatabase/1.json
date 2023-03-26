@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "62812d08b7576dfa48539154426d2040",
+    "identityHash": "eefe23a53b049bc0e8f182d144cb5a09",
     "entities": [
       {
         "tableName": "customer",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `number` TEXT, `amount` REAL, `time` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `number` TEXT NOT NULL, `amount` REAL NOT NULL, `time` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -18,19 +18,19 @@
             "fieldPath": "name",
             "columnName": "name",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "number",
             "columnName": "number",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "amount",
             "columnName": "amount",
             "affinity": "REAL",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "time",
@@ -60,7 +60,7 @@
       },
       {
         "tableName": "tran",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uid` INTEGER, `type` INTEGER, `desc` TEXT, `amount` REAL, `received` INTEGER, `clear` INTEGER, `time` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uid` INTEGER NOT NULL, `type` INTEGER NOT NULL, `desc` TEXT, `amount` REAL NOT NULL, `received` INTEGER NOT NULL, `clear` INTEGER, `time` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -72,13 +72,13 @@
             "fieldPath": "uid",
             "columnName": "uid",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "type",
             "columnName": "type",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "description",
@@ -90,13 +90,13 @@
             "fieldPath": "amount",
             "columnName": "amount",
             "affinity": "REAL",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "received",
             "columnName": "received",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "clear",
@@ -108,7 +108,7 @@
             "fieldPath": "time",
             "columnName": "time",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -124,7 +124,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '62812d08b7576dfa48539154426d2040')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'eefe23a53b049bc0e8f182d144cb5a09')"
     ]
   }
 }

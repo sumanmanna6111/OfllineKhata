@@ -1,10 +1,17 @@
 package com.suman.ofllinekhata
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.telephony.TelephonyManager
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.suman.ofllinekhata.adapter.CustomerAdapter
@@ -12,9 +19,7 @@ import com.suman.ofllinekhata.databinding.ActivityCustomerBinding
 import com.suman.ofllinekhata.entity.CustomerEntity
 import com.suman.ofllinekhata.interfaces.OnClickListener
 import com.suman.ofllinekhata.model.CustomerModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class CustomerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCustomerBinding
@@ -25,7 +30,7 @@ class CustomerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCustomerBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        setSupportActionBar(binding.toolbar)
         customerList = ArrayList<CustomerModel>()
         adapter = CustomerAdapter(customerList!!)
         binding.listCustomer.setHasFixedSize(true)
@@ -33,9 +38,12 @@ class CustomerActivity : AppCompatActivity() {
         binding.listCustomer.adapter = adapter
 
         adapter!!.setOnClickListener(object : OnClickListener{
-            override fun onClick(id: Int) {
-                //TODO("Not yet implemented")
-                Log.d("TAG", "onClick: ")
+            override fun onClick(id: Int, name: String) {
+                Intent(this@CustomerActivity, TransactionActivity::class.java).also {
+                    it.putExtra("id",id)
+                    it.putExtra("name",name)
+                    startActivity(it)
+                }
             }
 
         })
@@ -44,7 +52,7 @@ class CustomerActivity : AppCompatActivity() {
             startActivity(Intent(this, AddCustomerActivity::class.java))
         }
 
-
+        RequestPermission()
     }
 
     override fun onStart() {
@@ -52,6 +60,57 @@ class CustomerActivity : AppCompatActivity() {
         customerList?.clear()
         CoroutineScope(Dispatchers.Main).launch {
             getCustomer()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String?>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 9) {
+            var isAllGranted = true
+            for (permission in permissions) {
+                if (ActivityCompat.checkSelfPermission(
+                        this@CustomerActivity,
+                        permission!!
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) isAllGranted = false
+            }
+            if (!isAllGranted) {
+                RequestPermission()
+            } else {
+                // TODO -- Do any work when all permission are granted
+
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.SEND_SMS
+                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.READ_CONTACTS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
+            }
+        }
+    }
+    private fun RequestPermission() {
+        /* if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                getCallDetails();
+                //requestPermissions(new String[]{Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE},0);
+            }
+        }*/
+        val PERMISSIONS_STORAGE = arrayOf(
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.READ_CONTACTS
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(PERMISSIONS_STORAGE, 9)
+        } else {
+            ActivityCompat.requestPermissions(this@CustomerActivity, PERMISSIONS_STORAGE, 9)
         }
     }
 
@@ -64,13 +123,40 @@ class CustomerActivity : AppCompatActivity() {
              ).build()
              val customerDao = db.customerDao()
              val customers: List<CustomerEntity> = customerDao.getAll()
-             Log.d("TAG", "getCustomer: ${customerDao.getTotalCredit()}")
+             val getCredit = customerDao.getTotalCredit()
+             val getDebit = customerDao.getTotalCredit()
+             //val creditBalance =  "Due \u20B9${if (getCredit != null)customerDao.getTotalCredit() else 0.00f}"
+             val creditBalance =  "Due \u20B9${getCredit ?: 0.00f}"
+             //val debitBalance ="Advance \u20B9${if (customerDao.getTotalDebit() != null)customerDao.getTotalDebit() else 0.00f}"
+             val debitBalance ="Advance \u20B9${getDebit ?: 0.00f}"
+            MainScope().launch(Dispatchers.Default){
+                binding.tvTotalCredit.text = creditBalance
+                binding.tvTotalDebit.text = debitBalance
+            }
              for (customer in customers){
-                 customerList!!.add(CustomerModel(customer.id, customer.name, customer.number, customer.amount))
+                 customerList?.add(CustomerModel(customer.id, customer.name, customer.number, customer.amount))
              }
 
          }
          job.join()
-         adapter!!.notifyDataSetChanged()
+         adapter?.notifyDataSetChanged()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.option_item, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.setting -> startActivity(
+                Intent(
+                    this@CustomerActivity,
+                    SettingsActivity::class.java
+                )
+            )
+            R.id.backup -> {}
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
