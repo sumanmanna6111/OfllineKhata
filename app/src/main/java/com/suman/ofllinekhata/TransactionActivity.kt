@@ -30,6 +30,7 @@ class TransactionActivity : AppCompatActivity() {
         binding = ActivityTransactionBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         tranList = ArrayList<TransactionModel>()
         adapter = TransactionAdapter(tranList!!)
         binding.listTransaction.setHasFixedSize(true)
@@ -67,11 +68,10 @@ class TransactionActivity : AppCompatActivity() {
             val getDebit = transactionDao.getTotalDebit(uid)
             val creditBalance =  "Due \u20B9${getCredit ?: 0.00f}"
             val debitBalance ="Advance \u20B9${getDebit ?: 0.00f}"
-            MainScope().launch(Dispatchers.Default){
+            runOnUiThread(Runnable {
                 binding.tvTotalCredit.text = creditBalance
                 binding.tvTotalDebit.text = debitBalance
-                binding.toolbar.title = name
-            }
+                binding.toolbar.title = name })
             for (transaction in transactions){
                 tranList?.add(TransactionModel(transaction.id, transaction.amount, transaction.description, transaction.time))
             }

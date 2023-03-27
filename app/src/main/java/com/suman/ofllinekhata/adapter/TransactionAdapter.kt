@@ -8,6 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.suman.ofllinekhata.R
 import com.suman.ofllinekhata.interfaces.OnClickListener
 import com.suman.ofllinekhata.model.TransactionModel
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class TransactionAdapter(val list: ArrayList<TransactionModel>): RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
     var mListener: OnClickListener? = null
@@ -32,9 +35,9 @@ class TransactionAdapter(val list: ArrayList<TransactionModel>): RecyclerView.Ad
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val transaction = list[position]
-        holder.date.text = transaction.date.toString()
+        holder.date.text = SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.ENGLISH).format(Date(transaction.date))
         holder.amount.text = "\u20B9${transaction.amount}"
-        holder.desc.text = transaction.description
+        holder.desc.text = if (transaction.description.equals("")) "NA" else transaction.description
         holder.itemView.setOnClickListener {
             mListener!!.onClick(transaction.id,"")
         }
