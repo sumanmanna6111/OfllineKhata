@@ -39,7 +39,7 @@ class TransactionAdapter(val list: ArrayList<TransactionModel>): RecyclerView.Ad
         holder.amount.text = "\u20B9${transaction.amount}"
         holder.desc.text = if (transaction.description.equals("")) "NA" else transaction.description
         holder.itemView.setOnClickListener {
-            mListener!!.onClick(transaction.id,"")
+            mListener!!.onClick(transaction.id,"","")
         }
     }
 }

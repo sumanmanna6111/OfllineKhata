@@ -6,7 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.telephony.TelephonyManager
+import android.os.Environment
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -38,10 +38,11 @@ class CustomerActivity : AppCompatActivity() {
         binding.listCustomer.adapter = adapter
 
         adapter!!.setOnClickListener(object : OnClickListener{
-            override fun onClick(id: Int, name: String) {
+            override fun onClick(id: Int, name: String, number: String) {
                 Intent(this@CustomerActivity, TransactionActivity::class.java).also {
                     it.putExtra("id",id)
                     it.putExtra("name",name)
+                    it.putExtra("number",number)
                     startActivity(it)
                 }
             }
@@ -58,7 +59,7 @@ class CustomerActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         customerList?.clear()
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             getCustomer()
         }
     }
@@ -124,7 +125,11 @@ class CustomerActivity : AppCompatActivity() {
              val customerDao = db.customerDao()
              val customers: List<CustomerEntity> = customerDao.getAll()
              val getCredit = customerDao.getTotalCredit()
-             val getDebit = customerDao.getTotalCredit()
+             val getDebit = customerDao.getTotalDebit()
+             if(db.isOpen) {
+                 db.close()
+             }
+
              //val creditBalance =  "Due \u20B9${if (getCredit != null)customerDao.getTotalCredit() else 0.00f}"
              val creditBalance =  "Due \u20B9${getCredit ?: 0.00f}"
              //val debitBalance ="Advance \u20B9${if (customerDao.getTotalDebit() != null)customerDao.getTotalDebit() else 0.00f}"
@@ -139,7 +144,8 @@ class CustomerActivity : AppCompatActivity() {
 
          }
          job.join()
-         adapter?.notifyDataSetChanged()
+         runOnUiThread{ adapter?.notifyDataSetChanged() }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -155,7 +161,13 @@ class CustomerActivity : AppCompatActivity() {
                     SettingsActivity::class.java
                 )
             )
-            R.id.backup -> {}
+            R.id.backup -> {
+
+                val currentDBPath = getDatabasePath("khata.db").absolutePath
+                val storage  = Environment.getExternalStorageDirectory().absolutePath
+                Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
+                Log.d("TAG", "onOptionsItemSelected: $storage")
+            }
         }
         return super.onOptionsItemSelected(item)
     }

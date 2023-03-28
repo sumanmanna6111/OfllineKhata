@@ -18,15 +18,15 @@ interface CustomerDao {
     @Query("SELECT SUM(`amount`) FROM customer WHERE amount > 0")
     suspend fun getTotalDebit(): Float?
 
-    @Query("SELECT * FROM customer WHERE id IN (:userIds)")
-    suspend fun loadAllByIds(userIds: IntArray): List<CustomerEntity>
+    @Query("SELECT * FROM customer WHERE id = :userId")
+    suspend fun loadAllById(userId: Int): CustomerEntity
 
     @Query("SELECT * FROM customer WHERE name LIKE :first AND " +
             "number LIKE :last LIMIT 1")
     suspend fun findByName(first: String, last: String): CustomerEntity
 
-    @Query("UPDATE customer SET amount=:balance WHERE id = :uid")
-    suspend fun update(balance: Float, uid: Int)
+    @Query("UPDATE customer SET amount= amount + :balance WHERE id = :userid")
+    suspend fun update(balance: Float, userid: Int)
 
     @Insert
     suspend fun insertAll(vararg users: CustomerEntity)

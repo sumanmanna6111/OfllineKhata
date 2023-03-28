@@ -21,6 +21,8 @@ class AddCustomerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAddCustomerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.dueType.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.btn_credit -> {
@@ -58,8 +60,7 @@ class AddCustomerActivity : AppCompatActivity() {
         var amount: Float = binding.edCustomerAmount.text.toString().toFloat()
         val description: String = binding.edCustomerDesc.text.toString()
         val time: Long = System.currentTimeMillis()
-        val msg:String = String.format("Hi, %s you have purchase Rs.%f from %s.\nYour total Due is Rs.%f", name, amount, "Suman Manna", amount )
-        SMSManager.sendSMS(number, msg)
+
         CoroutineScope(Dispatchers.IO).launch {
             val db = Room.databaseBuilder(
                 applicationContext,
@@ -67,7 +68,7 @@ class AddCustomerActivity : AppCompatActivity() {
             ).build()
             val customerDao = db.customerDao()
             val transactionDao = db.transactionDao()
-            if (type == 0) amount = -amount
+            if (type == 0)amount = -amount
             try {
                 customerDao.insertAll(CustomerEntity(0, name, number, amount, time))
                 val uid = customerDao.getLastUser().get(0).id
@@ -83,7 +84,11 @@ class AddCustomerActivity : AppCompatActivity() {
                         time
                     )
                 )
-
+                if(db.isOpen) {
+                    db.close()
+                }
+                val msg:String = String.format(if (amount <= 0) Config.duemsg else Config.advancemsg, name, Math.abs(amount), "Suman Manna", Math.abs(amount))
+                SMSManager.sendSMS(number, msg)
                 finish()
             }catch (e: Exception){
                 Log.d(TAG, "addCustomer: ${e.printStackTrace()}")
@@ -92,7 +97,10 @@ class AddCustomerActivity : AppCompatActivity() {
         }
     }
 
-
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return super.onSupportNavigateUp()
+    }
     /*@SuppressLint("Range")
     private val openContacts = registerForActivityResult(ActivityResultContracts.PickContact()) {
 

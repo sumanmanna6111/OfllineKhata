@@ -14,7 +14,7 @@
         app:title="Transactions" />
 
     <TextView
-        android:id="@+id/tv_total_credit"
+        android:id="@+id/tv_total_bal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -33,13 +33,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Advance \u20B9200"
+        android:text=""
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/tv_total_credit"
+        app:layout_constraintStart_toEndOf="@+id/tv_total_bal"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 
@@ -53,16 +53,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_total_debit" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/btn_add_tran"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
         android:clickable="true"
         android:contentDescription="Customer Add Button"
         android:focusable="true"
+        android:textColor="@color/white"
+        android:text="New Record"
+        android:textAllCaps="false"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/baseline_add_24" />
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

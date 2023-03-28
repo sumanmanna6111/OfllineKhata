@@ -31,7 +31,7 @@ class CustomerAdapter(val list: ArrayList<CustomerModel>): RecyclerView.Adapter<
         holder.number.text = customer.number
         holder.balance.text = "\u20B9${customer.balance}"
         holder.itemView.setOnClickListener {
-            mListener!!.onClick(customer.id, customer.name)
+            mListener!!.onClick(customer.id, customer.name, customer.number)
         }
     }
 
