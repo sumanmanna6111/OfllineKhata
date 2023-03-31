@@ -1,6 +1,7 @@
 package com.suman.ofllinekhata
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -45,7 +46,7 @@ class TransactionActivity : AppCompatActivity() {
         uid = intent.getIntExtra("id", 0)
         name = intent.getStringExtra("name") ?: ""
         number = intent.getStringExtra("number") ?: ""
-
+        binding.toolbar.title = name
 
         val dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_dialog, null)
@@ -84,9 +85,8 @@ class TransactionActivity : AppCompatActivity() {
 
         adapter!!.setOnClickListener(object : OnClickListener {
             override fun onClick(id: Int, name: String, number:String) {
-
+                startActivity(Intent(this@TransactionActivity, DetailsActivity::class.java).putExtra("id",id))
             }
-
         })
 
         binding.btnAddTran.setOnClickListener {
@@ -122,7 +122,7 @@ class TransactionActivity : AppCompatActivity() {
             }
             runOnUiThread(Runnable {
                 binding.tvTotalBal.text = balance
-                binding.toolbar.title = name })
+                 })
             for (transaction in transactions){
                 tranList?.add(TransactionModel(transaction.id, transaction.amount, transaction.description, transaction.time))
             }
@@ -148,7 +148,6 @@ class TransactionActivity : AppCompatActivity() {
             try {
                 customerDao.update(amount, uid)
                 var totalAmt: Float = customerDao.loadAllById(uid).amount
-                totalAmt = Math.abs(totalAmt)
                 transactionDao.insertAll(
                     TransactionEntity(
                         0,
@@ -164,7 +163,24 @@ class TransactionActivity : AppCompatActivity() {
                 if(db.isOpen) {
                     db.close()
                 }
-                val msg:String = String.format(if (totalAmt <= 0) Config.duemsg else Config.advancemsg, name, Math.abs(amount), "Suman Manna", totalAmt )
+
+                var msgType: String = "";
+                if (type == 0){
+                    if (totalAmt <= 0){
+                        msgType = Config.purchaseDue
+                    }else {
+                        msgType = Config.purchaseAdv
+                    }
+                }else{
+                    if (totalAmt <= 0){
+                        msgType = Config.paidDue
+                    }else {
+                        msgType = Config.paidAdv
+                    }
+                }
+
+                val msg:String = String.format(msgType, name, Math.abs(amount), "Suman Manna", Math.abs(totalAmt) )
+                Log.d(TAG, "trans: $msg")
                 SMSManager.sendSMS(number, msg)
             }catch (e: Exception){
                 Log.d(TAG, "addRecord: ${e.printStackTrace()}")

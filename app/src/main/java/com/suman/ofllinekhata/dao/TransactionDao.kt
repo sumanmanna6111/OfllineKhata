@@ -13,6 +13,10 @@ interface TransactionDao {
 
     @Query("SELECT * FROM tran WHERE uid = :userid ORDER BY id DESC")
     suspend fun getCustomerTran(userid: Int): List<TransactionEntity>
+
+    @Query("SELECT * FROM tran WHERE id = :id")
+    suspend fun getTranDetails(id: Int):  TransactionEntity
+
     @Query("SELECT SUM(`amount`) FROM tran WHERE uid = :userid")
     suspend fun getTotal(userid: Int): Float?
 

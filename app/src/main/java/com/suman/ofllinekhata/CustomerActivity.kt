@@ -10,6 +10,7 @@ import android.os.Environment
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +21,8 @@ import com.suman.ofllinekhata.entity.CustomerEntity
 import com.suman.ofllinekhata.interfaces.OnClickListener
 import com.suman.ofllinekhata.model.CustomerModel
 import kotlinx.coroutines.*
+import java.io.File
+import java.io.IOException
 
 class CustomerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCustomerBinding
@@ -106,7 +109,8 @@ class CustomerActivity : AppCompatActivity() {
         }*/
         val PERMISSIONS_STORAGE = arrayOf(
             Manifest.permission.SEND_SMS,
-            Manifest.permission.READ_CONTACTS
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(PERMISSIONS_STORAGE, 9)
@@ -162,13 +166,40 @@ class CustomerActivity : AppCompatActivity() {
                 )
             )
             R.id.backup -> {
-
-                val currentDBPath = getDatabasePath("khata.db").absolutePath
-                val storage  = Environment.getExternalStorageDirectory().absolutePath
-                Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
-                Log.d("TAG", "onOptionsItemSelected: $storage")
+                backup()
+            }
+            R.id.restore -> {
+                restore()
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun backup() {
+        try {
+            val currentDBPath = getDatabasePath("khata.db").absolutePath
+            val storage  = Environment.getExternalStorageDirectory().absolutePath
+            Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
+            Log.d("TAG", "onOptionsItemSelected: $storage")
+            File(currentDBPath).copyTo(File("$storage/backup.db"), true)
+            Toast.makeText(this, "$storage/backup.db", Toast.LENGTH_LONG).show()
+        }catch (e: IOException){
+            Toast.makeText(this, "something went wrong", Toast.LENGTH_LONG).show()
+        }
+
+    }
+
+    private fun restore() {
+        try {
+            val currentDBPath = getDatabasePath("khata.db").absolutePath
+            val storage  = Environment.getExternalStorageDirectory().absolutePath
+            Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
+            Log.d("TAG", "onOptionsItemSelected: $storage")
+            File("$storage/backup.db").copyTo(File(currentDBPath), true)
+            Toast.makeText(this, "$storage/backup.db imported", Toast.LENGTH_LONG).show()
+        }catch (e: IOException){
+            Toast.makeText(this, "something went wrong", Toast.LENGTH_LONG).show()
+        }
+
     }
 }

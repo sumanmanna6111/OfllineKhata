@@ -14,4 +14,7 @@
     <item
         android:id="@+id/backup"
         android:title="BackUp" />
+    <item
+        android:id="@+id/restore"
+        android:title="Restore" />
 </menu>

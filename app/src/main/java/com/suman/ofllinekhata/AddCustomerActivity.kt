@@ -87,7 +87,22 @@ class AddCustomerActivity : AppCompatActivity() {
                 if(db.isOpen) {
                     db.close()
                 }
-                val msg:String = String.format(if (amount <= 0) Config.duemsg else Config.advancemsg, name, Math.abs(amount), "Suman Manna", Math.abs(amount))
+                var msgType: String = "";
+                if (type == 0){
+                    if (amount <= 0){
+                        msgType = Config.purchaseDue
+                    }else {
+                        msgType = Config.purchaseAdv
+                    }
+                }else{
+                    if (amount <= 0){
+                        msgType = Config.paidDue
+                    }else {
+                        msgType = Config.paidAdv
+                    }
+                }
+                val msg:String = String.format(msgType, name, Math.abs(amount), "Suman Manna", Math.abs(amount))
+
                 SMSManager.sendSMS(number, msg)
                 finish()
             }catch (e: Exception){
