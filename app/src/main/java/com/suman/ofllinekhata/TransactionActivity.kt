@@ -164,7 +164,7 @@ class TransactionActivity : AppCompatActivity() {
                     db.close()
                 }
 
-                var msgType: String = "";
+                var msgType: String;
                 if (type == 0){
                     if (totalAmt <= 0){
                         msgType = Config.purchaseDue

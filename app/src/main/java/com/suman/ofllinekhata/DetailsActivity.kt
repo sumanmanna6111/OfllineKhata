@@ -1,13 +1,10 @@
 package com.suman.ofllinekhata
 
-import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.room.Room
 import com.suman.ofllinekhata.databinding.ActivityDetailsBinding
-import com.suman.ofllinekhata.databinding.ActivityTransactionBinding
 import com.suman.ofllinekhata.entity.TransactionEntity
-import com.suman.ofllinekhata.model.TransactionModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,7 +26,7 @@ class DetailsActivity : AppCompatActivity() {
 
     }
     private suspend fun getTranDetails(){
-        val job = CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val db = Room.databaseBuilder(
                 applicationContext,
                 AppDatabase::class.java, "khata.db"
@@ -39,10 +36,8 @@ class DetailsActivity : AppCompatActivity() {
             if(db.isOpen) {
                 db.close()
             }
-
+            //runOnUiThread { binding.tranDetailAmt.text =  transactions.amount.toString()}
 
         }
-        job.join()
-
     }
 }

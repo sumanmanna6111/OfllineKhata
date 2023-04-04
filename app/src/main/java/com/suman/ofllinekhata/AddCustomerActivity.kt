@@ -23,7 +23,7 @@ class AddCustomerActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.dueType.setOnCheckedChangeListener { group, checkedId ->
+        binding.dueType.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.btn_credit -> {
                     type = 0
@@ -87,7 +87,7 @@ class AddCustomerActivity : AppCompatActivity() {
                 if(db.isOpen) {
                     db.close()
                 }
-                var msgType: String = "";
+                var msgType: String;
                 if (type == 0){
                     if (amount <= 0){
                         msgType = Config.purchaseDue

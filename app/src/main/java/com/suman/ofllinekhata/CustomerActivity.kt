@@ -165,12 +165,9 @@ class CustomerActivity : AppCompatActivity() {
                     SettingsActivity::class.java
                 )
             )
-            R.id.backup -> startActivity(
-                Intent(
-                    this@CustomerActivity,
-                    MainActivity::class.java
-                )
-            )
+            R.id.backup -> {
+                backup()
+            }
             R.id.restore -> {
                 restore()
             }
