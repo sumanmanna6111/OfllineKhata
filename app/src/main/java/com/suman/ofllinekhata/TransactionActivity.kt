@@ -101,7 +101,7 @@ class TransactionActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+        finish()
         return super.onSupportNavigateUp()
     }
 
@@ -124,7 +124,7 @@ class TransactionActivity : AppCompatActivity() {
                 binding.tvTotalBal.text = balance
                  })
             for (transaction in transactions){
-                tranList?.add(TransactionModel(transaction.id, transaction.amount, transaction.description, transaction.time))
+                tranList?.add(TransactionModel(transaction.id, transaction.amount, transaction.description, transaction.received, transaction.time))
             }
         }
         job.join()

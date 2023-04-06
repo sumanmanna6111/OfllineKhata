@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -49,14 +48,20 @@ class CustomerActivity : AppCompatActivity() {
                     startActivity(it)
                 }
             }
-
         })
 
         binding.btnAddCustomer.setOnClickListener {
             startActivity(Intent(this, AddCustomerActivity::class.java))
         }
+        requestPermission()
 
-        RequestPermission()
+        val prefManager = PrefManager(this)
+        val lastBackUp: Long = prefManager.getLong("backup")
+        val hour = System.currentTimeMillis() - lastBackUp
+        if (hour > 14400000L) {
+            prefManager.setLong("backup", System.currentTimeMillis())
+            backup()
+        }
     }
 
     override fun onStart() {
@@ -83,7 +88,7 @@ class CustomerActivity : AppCompatActivity() {
                 ) isAllGranted = false
             }
             if (!isAllGranted) {
-                RequestPermission()
+                requestPermission()
             } else {
                 // TODO -- Do any work when all permission are granted
 
@@ -100,22 +105,22 @@ class CustomerActivity : AppCompatActivity() {
             }
         }
     }
-    private fun RequestPermission() {
+    private fun requestPermission() {
         /* if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED){
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 getCallDetails();
                 //requestPermissions(new String[]{Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE},0);
             }
         }*/
-        val PERMISSIONS_STORAGE = arrayOf(
+        val permissions = arrayOf(
             Manifest.permission.SEND_SMS,
             Manifest.permission.READ_CONTACTS,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(PERMISSIONS_STORAGE, 9)
+            requestPermissions(permissions, 9)
         } else {
-            ActivityCompat.requestPermissions(this@CustomerActivity, PERMISSIONS_STORAGE, 9)
+            ActivityCompat.requestPermissions(this@CustomerActivity, permissions, 9)
         }
     }
 
@@ -145,18 +150,15 @@ class CustomerActivity : AppCompatActivity() {
              for (customer in customers){
                  customerList?.add(CustomerModel(customer.id, customer.name, customer.number, customer.amount))
              }
-
          }
          job.join()
          runOnUiThread{ adapter?.notifyDataSetChanged() }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.option_item, menu)
         return super.onCreateOptionsMenu(menu)
     }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.setting -> startActivity(
@@ -179,23 +181,22 @@ class CustomerActivity : AppCompatActivity() {
         try {
             val currentDBPath = getDatabasePath("khata.db").absolutePath
             val storage  = Environment.getExternalStorageDirectory().absolutePath
-            Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
-            Log.d("TAG", "onOptionsItemSelected: $storage")
-            File(currentDBPath).copyTo(File("$storage/backup.db"), true)
-            Toast.makeText(this, "$storage/backup.db", Toast.LENGTH_LONG).show()
+            /*Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
+            Log.d("TAG", "onOptionsItemSelected: $storage")*/
+            File(currentDBPath).copyTo(File("$storage/OfflineKhata/backup.db"), true)
+            Toast.makeText(this, "Backup to OfflineKhata/backup.db", Toast.LENGTH_LONG).show()
         }catch (e: IOException){
             Toast.makeText(this, "something went wrong", Toast.LENGTH_LONG).show()
         }
-
     }
 
     private fun restore() {
         try {
             val currentDBPath = getDatabasePath("khata.db").absolutePath
             val storage  = Environment.getExternalStorageDirectory().absolutePath
-            Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
-            Log.d("TAG", "onOptionsItemSelected: $storage")
-            File("$storage/backup.db").copyTo(File(currentDBPath), true)
+            /*Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
+            Log.d("TAG", "onOptionsItemSelected: $storage")*/
+            File("$storage/OfflineKhata/backup.db").copyTo(File(currentDBPath), true)
             Toast.makeText(this, "$storage/backup.db imported", Toast.LENGTH_LONG).show()
         }catch (e: IOException){
             Toast.makeText(this, "something went wrong", Toast.LENGTH_LONG).show()

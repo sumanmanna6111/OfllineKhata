@@ -1,5 +1,6 @@
 package com.suman.ofllinekhata.adapter
 
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +11,6 @@ import com.suman.ofllinekhata.interfaces.OnClickListener
 import com.suman.ofllinekhata.model.TransactionModel
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class TransactionAdapter(val list: ArrayList<TransactionModel>): RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
     var mListener: OnClickListener? = null
@@ -35,6 +35,11 @@ class TransactionAdapter(val list: ArrayList<TransactionModel>): RecyclerView.Ad
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val transaction = list[position]
+        if (transaction.received == 1){
+            holder.date.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG)
+            holder.amount.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG)
+            holder.desc.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG)
+        }
         holder.date.text = SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.ENGLISH).format(Date(transaction.date))
         holder.amount.text = "\u20B9${transaction.amount}"
         holder.desc.text = if (transaction.description.equals("")) "NA" else transaction.description

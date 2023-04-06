@@ -11,10 +11,22 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.btnLogin.setOnClickListener { login() }
+        val prefManager = PrefManager(this)
+        if (prefManager.getBoolean("islogin")){
+            startActivity(Intent(this, CustomerActivity::class.java))
+            finish()
+        }
+        binding.btnLogin.setOnClickListener { login(prefManager) }
     }
 
-    private fun login(){
+    private fun login(prefManager: PrefManager){
+        if (binding.edShopName.text.toString().isEmpty()) {
+            binding.edShopName.error = "Enter Shop Name"
+            return
+        }
+        prefManager.setString("company", binding.edShopName.text.toString())
+        prefManager.setBoolean("islogin", true)
         startActivity(Intent(this, CustomerActivity::class.java))
+        finish()
     }
 }

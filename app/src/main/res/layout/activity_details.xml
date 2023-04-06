@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:checked="true"
+            android:clickable="false"
             android:text="Credit" />
 
         <RadioButton
@@ -38,6 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:clickable="false"
             android:text="Debit" />
     </RadioGroup>
 
@@ -58,6 +59,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"
+            android:enabled="false"
             android:hint="Amount" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -107,6 +109,7 @@
             android:id="@+id/tran_detail_clear"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:hint="Due Cleared" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -137,6 +140,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="24dp"
         android:text="Save"
+        app:cornerRadius="25dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
