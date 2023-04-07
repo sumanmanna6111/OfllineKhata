@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.room.Room
 import com.suman.ofllinekhata.databinding.ActivityDetailsBinding
+import com.suman.ofllinekhata.entity.CustomerEntity
 import com.suman.ofllinekhata.entity.TransactionEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +16,8 @@ import java.util.*
 class DetailsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailsBinding
     var id: Int = 0
+    var amount: Float = 0f
+    var uid: Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailsBinding.inflate(layoutInflater)
@@ -23,7 +26,10 @@ class DetailsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         binding.btnSaveTran.setOnClickListener {
-            saveTran()
+            if (binding.tranDetailIsClear.isChecked){
+                saveTran()
+            }
+
         }
 
         id = intent.getIntExtra("id", 0)
@@ -41,8 +47,23 @@ class DetailsActivity : AppCompatActivity() {
                 AppDatabase::class.java, "khata.db"
             ).build()
             val transactionDao = db.transactionDao()
+            val customerDao = db.customerDao()
             val clearTime: Long = System.currentTimeMillis()
             transactionDao.dueReceived(if (binding.tranDetailIsClear.isChecked) 1 else 0, clearTime, id)
+            customerDao.update(amount, uid)
+            val prefManager = PrefManager(this@DetailsActivity)
+            if (prefManager.getBoolean("sms")){
+                val customer: CustomerEntity = customerDao.loadAllById(uid)
+                var msgType: String;
+                if (customer.amount <= 0){
+                    msgType = Config.paidDue
+                }else {
+                    msgType = Config.paidAdv
+                }
+                val msg:String = String.format(msgType, customer.name, Math.abs(amount), prefManager.getString("company"), Math.abs(customer.amount) )
+                SMSManager.sendSMS(customer.number, msg)
+            }
+
             if(db.isOpen) {
                 db.close()
             }
@@ -58,6 +79,8 @@ class DetailsActivity : AppCompatActivity() {
             ).build()
             val transactionDao = db.transactionDao()
             val transactions: TransactionEntity = transactionDao.getTranDetails(id)
+            amount = transactions.amount
+            uid = transactions.uid
             if(db.isOpen) {
                 db.close()
             }

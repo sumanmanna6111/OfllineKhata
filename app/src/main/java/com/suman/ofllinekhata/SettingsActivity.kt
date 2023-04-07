@@ -12,6 +12,12 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        val prefManager = PrefManager(this)
+        binding.smsSwitch.isChecked = prefManager.getBoolean("sms")
+
+        binding.smsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            prefManager.setBoolean("sms", isChecked)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

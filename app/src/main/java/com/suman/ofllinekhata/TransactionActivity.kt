@@ -163,25 +163,27 @@ class TransactionActivity : AppCompatActivity() {
                 if(db.isOpen) {
                     db.close()
                 }
+                val prefManager = PrefManager(this@TransactionActivity)
+                if (prefManager.getBoolean("sms")){
+                    var msgType: String;
+                    if (type == 0){
+                        if (totalAmt <= 0){
+                            msgType = Config.purchaseDue
+                        }else {
+                            msgType = Config.purchaseAdv
+                        }
+                    }else{
+                        if (totalAmt <= 0){
+                            msgType = Config.paidDue
+                        }else {
+                            msgType = Config.paidAdv
+                        }
+                    }
 
-                var msgType: String;
-                if (type == 0){
-                    if (totalAmt <= 0){
-                        msgType = Config.purchaseDue
-                    }else {
-                        msgType = Config.purchaseAdv
-                    }
-                }else{
-                    if (totalAmt <= 0){
-                        msgType = Config.paidDue
-                    }else {
-                        msgType = Config.paidAdv
-                    }
+                    val msg:String = String.format(msgType, name, Math.abs(amount), prefManager.getString("company"), Math.abs(totalAmt) )
+                    SMSManager.sendSMS(number, msg)
                 }
 
-                val msg:String = String.format(msgType, name, Math.abs(amount), "Suman Manna", Math.abs(totalAmt) )
-                Log.d(TAG, "trans: $msg")
-                SMSManager.sendSMS(number, msg)
             }catch (e: Exception){
                 Log.d(TAG, "addRecord: ${e.printStackTrace()}")
             }

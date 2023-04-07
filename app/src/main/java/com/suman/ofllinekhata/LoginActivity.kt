@@ -12,6 +12,10 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val prefManager = PrefManager(this)
+        if (prefManager.getString("config").isNullOrEmpty()){
+            prefManager.setBoolean("sms", true)
+            prefManager.setString("config","yes")
+        }
         if (prefManager.getBoolean("islogin")){
             startActivity(Intent(this, CustomerActivity::class.java))
             finish()
