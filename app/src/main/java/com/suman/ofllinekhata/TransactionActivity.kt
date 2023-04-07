@@ -146,7 +146,7 @@ class TransactionActivity : AppCompatActivity() {
             val transactionDao = db.transactionDao()
             if (type == 0)amount = -amount
             try {
-                customerDao.update(amount, uid)
+                customerDao.update(balance = amount, userid = uid)
                 var totalAmt: Float = customerDao.loadAllById(uid).amount
                 transactionDao.insertAll(
                     TransactionEntity(

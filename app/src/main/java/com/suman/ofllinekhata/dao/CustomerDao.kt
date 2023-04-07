@@ -25,8 +25,8 @@ interface CustomerDao {
             "number LIKE :last LIMIT 1")
     suspend fun findByName(first: String, last: String): CustomerEntity
 
-    @Query("UPDATE customer SET amount= amount + :balance WHERE id = :userid")
-    suspend fun update(balance: Float, userid: Int)
+    @Query("UPDATE customer SET amount= amount + :balance, time= :update WHERE id = :userid")
+    suspend fun update(balance: Float, update: Long = System.currentTimeMillis() , userid: Int)
 
     @Insert
     suspend fun insertAll(vararg users: CustomerEntity)

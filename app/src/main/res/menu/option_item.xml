@@ -6,15 +6,16 @@
         android:id="@+id/number_search"
         android:icon="@drawable/baseline_search_24"
         android:title="Search"
-        app:showAsAction="ifRoom|collapseActionView"
-        app:actionViewClass="androidx.appcompat.widget.SearchView" />
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView" />
+
+    <item
+        android:id="@+id/backup"
+        android:title="Backup" />
     <item
         android:id="@+id/setting"
         android:title="Setting" />
     <item
-        android:id="@+id/backup"
-        android:title="BackUp" />
-    <item
-        android:id="@+id/restore"
-        android:title="Restore" />
+        android:id="@+id/about"
+        android:title="About Us" />
 </menu>

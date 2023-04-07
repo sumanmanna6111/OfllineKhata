@@ -2,6 +2,7 @@ package com.suman.ofllinekhata
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -12,6 +13,8 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,12 +44,12 @@ class CustomerActivity : AppCompatActivity() {
         binding.listCustomer.layoutManager = LinearLayoutManager(this)
         binding.listCustomer.adapter = adapter
 
-        adapter!!.setOnClickListener(object : OnClickListener{
+        adapter!!.setOnClickListener(object : OnClickListener {
             override fun onClick(id: Int, name: String, number: String) {
                 Intent(this@CustomerActivity, TransactionActivity::class.java).also {
-                    it.putExtra("id",id)
-                    it.putExtra("name",name)
-                    it.putExtra("number",number)
+                    it.putExtra("id", id)
+                    it.putExtra("name", name)
+                    it.putExtra("number", number)
                     startActivity(it)
                 }
             }
@@ -106,6 +109,7 @@ class CustomerActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun requestPermission() {
         /* if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED){
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -125,41 +129,44 @@ class CustomerActivity : AppCompatActivity() {
         }
     }
 
-     @SuppressLint("NotifyDataSetChanged")
-     private suspend fun getCustomer(){
-         val job = CoroutineScope(Dispatchers.IO).launch {
-             val db = Room.databaseBuilder(
-                 applicationContext,
-                 AppDatabase::class.java, "khata.db"
-             ).build()
-             val customerDao = db.customerDao()
-             val customers: List<CustomerEntity> = customerDao.getAll()
-             val getCredit = customerDao.getTotalCredit()
-             val getDebit = customerDao.getTotalDebit()
-             if(db.isOpen) {
-                 db.close()
-             }
-
-             //val creditBalance =  "Due \u20B9${if (getCredit != null)customerDao.getTotalCredit() else 0.00f}"
-             val creditBalance =  "Due \u20B9${getCredit ?: 0.00f}"
-             //val debitBalance ="Advance \u20B9${if (customerDao.getTotalDebit() != null)customerDao.getTotalDebit() else 0.00f}"
-             val debitBalance ="Advance \u20B9${getDebit ?: 0.00f}"
-            MainScope().launch(Dispatchers.Default){
+    @SuppressLint("NotifyDataSetChanged")
+    private suspend fun getCustomer() {
+        val job = CoroutineScope(Dispatchers.IO).launch {
+            val db = Room.databaseBuilder(
+                applicationContext,
+                AppDatabase::class.java, "khata.db"
+            ).build()
+            val customerDao = db.customerDao()
+            val customers: List<CustomerEntity> = customerDao.getAll()
+            val getCredit = customerDao.getTotalCredit()
+            val getDebit = customerDao.getTotalDebit()
+            if (db.isOpen) db.close()
+            val creditBalance = "Due \u20B9${getCredit ?: 0.00f}"
+            val debitBalance = "Advance \u20B9${getDebit ?: 0.00f}"
+            MainScope().launch(Dispatchers.Default) {
                 binding.tvTotalCredit.text = creditBalance
                 binding.tvTotalDebit.text = debitBalance
             }
-             for (customer in customers){
-                 customerList?.add(CustomerModel(customer.id, customer.name, customer.number, customer.amount))
-             }
-         }
-         job.join()
-         runOnUiThread{ adapter?.notifyDataSetChanged() }
+            for (customer in customers) {
+                customerList?.add(
+                    CustomerModel(
+                        customer.id,
+                        customer.name,
+                        customer.number,
+                        customer.amount
+                    )
+                )
+            }
+        }
+        job.join()
+        runOnUiThread { adapter?.notifyDataSetChanged() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.option_item, menu)
         return super.onCreateOptionsMenu(menu)
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.setting -> startActivity(
@@ -171,8 +178,7 @@ class CustomerActivity : AppCompatActivity() {
             R.id.backup -> {
                 backup()
             }
-            R.id.restore -> {
-                restore()
+            R.id.contact -> {
             }
         }
         return super.onOptionsItemSelected(item)
@@ -181,37 +187,16 @@ class CustomerActivity : AppCompatActivity() {
     private fun backup() {
         try {
             val currentDBPath = getDatabasePath("khata.db").absolutePath
-            val storage  = Environment.getExternalStorageDirectory().absolutePath
+            val storage = Environment.getExternalStorageDirectory().absolutePath
             /*Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
             Log.d("TAG", "onOptionsItemSelected: $storage")*/
             File(currentDBPath).copyTo(File("$storage/OfflineKhata/backup.db"), true)
             Toast.makeText(this, "Backup to OfflineKhata/backup.db", Toast.LENGTH_LONG).show()
             PrefManager(this).setLong("backup", System.currentTimeMillis())
-        }catch (e: IOException){
+        } catch (e: IOException) {
             Toast.makeText(this, "something went wrong", Toast.LENGTH_LONG).show()
         }
     }
 
-    private fun restore() {
-       /* try {
-            val currentDBPath = getDatabasePath("khata.db").absolutePath
-            val storage  = Environment.getExternalStorageDirectory().absolutePath
-            *//*Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
-            Log.d("TAG", "onOptionsItemSelected: $storage")*//*
-            File("$storage/OfflineKhata/backup.db").copyTo(File(currentDBPath), true)
-            Toast.makeText(this, "$storage/backup.db imported", Toast.LENGTH_LONG).show()
-        }catch (e: IOException){
-            Toast.makeText(this, "something went wrong", Toast.LENGTH_LONG).show()
-        }*/
 
-        val intent = Intent(Intent.ACTION_GET_CONTENT).setType("application/octet-stream")
-        startActivityForResult(Intent.createChooser(intent, "Select db file"), 111)
-
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d("TAG", "onActivityResult: ${data?.let { PathUtils.getPath(this, it.data) }}")
-        Log.d("TAG", "onActivityResult: ${File(data?.let { PathUtils.getPath(this, it.data) }).extension}")
-    }
 }

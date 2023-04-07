@@ -11,39 +11,28 @@ import android.provider.MediaStore;
 
 public class PathUtils {
     public static String getPath(final Context context, final Uri uri) {
-
-        // DocumentProvider
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, uri)) {
-
+        if (DocumentsContract.isDocumentUri(context, uri)) {
             if (isExternalStorageDocument(uri)) {// ExternalStorageProvider
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
                 String storageDefinition;
 
-
-                if("primary".equalsIgnoreCase(type)){
-
+                if ("primary".equalsIgnoreCase(type)) {
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
-
                 } else {
-
-                    if(Environment.isExternalStorageRemovable()){
+                    if (Environment.isExternalStorageRemovable()) {
                         storageDefinition = "EXTERNAL_STORAGE";
-
-                    } else{
+                    } else {
                         storageDefinition = "SECONDARY_STORAGE";
                     }
-
                     return System.getenv(storageDefinition) + "/" + split[1];
                 }
 
             } else if (isDownloadsDocument(uri)) {// DownloadsProvider
-
                 final String id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-
+                        Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
                 return getDataColumn(context, contentUri, null, null);
 
             } else if (isMediaDocument(uri)) {// MediaProvider

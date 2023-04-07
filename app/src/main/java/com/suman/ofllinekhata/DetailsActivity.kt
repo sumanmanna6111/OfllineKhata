@@ -51,7 +51,7 @@ class DetailsActivity : AppCompatActivity() {
             val customerDao = db.customerDao()
             val clearTime: Long = System.currentTimeMillis()
             transactionDao.dueReceived(if (binding.tranDetailIsClear.isChecked) 1 else 0, clearTime, id)
-            customerDao.update(-amount, uid)
+            customerDao.update(balance = -amount, userid = uid)
             val prefManager = PrefManager(this@DetailsActivity)
             if (prefManager.getBoolean("sms")){
                 val customer: CustomerEntity = customerDao.loadAllById(uid)
