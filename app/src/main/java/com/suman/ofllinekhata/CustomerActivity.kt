@@ -4,9 +4,11 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -59,7 +61,6 @@ class CustomerActivity : AppCompatActivity() {
         val lastBackUp: Long = prefManager.getLong("backup")
         val hour = System.currentTimeMillis() - lastBackUp
         if (hour > 14400000L) {
-            prefManager.setLong("backup", System.currentTimeMillis())
             backup()
         }
     }
@@ -185,22 +186,32 @@ class CustomerActivity : AppCompatActivity() {
             Log.d("TAG", "onOptionsItemSelected: $storage")*/
             File(currentDBPath).copyTo(File("$storage/OfflineKhata/backup.db"), true)
             Toast.makeText(this, "Backup to OfflineKhata/backup.db", Toast.LENGTH_LONG).show()
+            PrefManager(this).setLong("backup", System.currentTimeMillis())
         }catch (e: IOException){
             Toast.makeText(this, "something went wrong", Toast.LENGTH_LONG).show()
         }
     }
 
     private fun restore() {
-        try {
+       /* try {
             val currentDBPath = getDatabasePath("khata.db").absolutePath
             val storage  = Environment.getExternalStorageDirectory().absolutePath
-            /*Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
-            Log.d("TAG", "onOptionsItemSelected: $storage")*/
+            *//*Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
+            Log.d("TAG", "onOptionsItemSelected: $storage")*//*
             File("$storage/OfflineKhata/backup.db").copyTo(File(currentDBPath), true)
             Toast.makeText(this, "$storage/backup.db imported", Toast.LENGTH_LONG).show()
         }catch (e: IOException){
             Toast.makeText(this, "something went wrong", Toast.LENGTH_LONG).show()
-        }
+        }*/
 
+        val intent = Intent(Intent.ACTION_GET_CONTENT).setType("application/octet-stream")
+        startActivityForResult(Intent.createChooser(intent, "Select db file"), 111)
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("TAG", "onActivityResult: ${data?.let { PathUtils.getPath(this, it.data) }}")
+        Log.d("TAG", "onActivityResult: ${File(data?.let { PathUtils.getPath(this, it.data) }).extension}")
     }
 }

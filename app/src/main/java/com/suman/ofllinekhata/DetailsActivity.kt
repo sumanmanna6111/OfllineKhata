@@ -2,6 +2,7 @@ package com.suman.ofllinekhata
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.room.Room
 import com.suman.ofllinekhata.databinding.ActivityDetailsBinding
 import com.suman.ofllinekhata.entity.CustomerEntity
@@ -24,20 +25,20 @@ class DetailsActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        id = intent.getIntExtra("id", 0)
 
         binding.btnSaveTran.setOnClickListener {
             if (binding.tranDetailIsClear.isChecked){
                 saveTran()
+            }else{
+                Toast.makeText(this, "nothing change", Toast.LENGTH_SHORT).show()
             }
 
         }
 
-        id = intent.getIntExtra("id", 0)
         CoroutineScope(Dispatchers.IO).launch {
             getTranDetails()
         }
-
-
     }
 
     private fun saveTran() {
@@ -50,7 +51,7 @@ class DetailsActivity : AppCompatActivity() {
             val customerDao = db.customerDao()
             val clearTime: Long = System.currentTimeMillis()
             transactionDao.dueReceived(if (binding.tranDetailIsClear.isChecked) 1 else 0, clearTime, id)
-            customerDao.update(amount, uid)
+            customerDao.update(-amount, uid)
             val prefManager = PrefManager(this@DetailsActivity)
             if (prefManager.getBoolean("sms")){
                 val customer: CustomerEntity = customerDao.loadAllById(uid)
