@@ -178,7 +178,7 @@ class CustomerActivity : AppCompatActivity() {
             R.id.backup -> {
                 backup()
             }
-            R.id.contact -> {
+            R.id.about -> {
             }
         }
         return super.onOptionsItemSelected(item)
