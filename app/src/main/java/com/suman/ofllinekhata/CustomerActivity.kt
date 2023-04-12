@@ -66,6 +66,16 @@ class CustomerActivity : AppCompatActivity() {
         if (hour > 14400000L) {
             backup()
         }
+
+        checkPin()
+
+    }
+
+    private fun checkPin() {
+        if (PrefManager(this).getBoolean("ispin")){
+            val intent = Intent(this, PinActivity::class.java)
+            startForPinResult.launch(intent)
+        }
     }
 
     override fun onStart() {
@@ -198,5 +208,22 @@ class CustomerActivity : AppCompatActivity() {
         }
     }
 
+
+    private val startForPinResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data
+            if (data != null) {
+                if (data.getStringExtra("pin") == PrefManager(this).getString("pin")){
+                    Log.d("TAG", "PIN: pin ok")
+                }else{
+                    checkPin()
+                    Toast.makeText(this, "Wrong PIN", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }else{
+            checkPin()
+            Toast.makeText(this, "Wrong PIN", Toast.LENGTH_SHORT).show()
+        }
+    }
 
 }

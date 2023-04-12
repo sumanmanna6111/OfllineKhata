@@ -17,7 +17,7 @@ interface TransactionDao {
     @Query("SELECT * FROM tran WHERE id = :id")
     suspend fun getTranDetails(id: Int):  TransactionEntity
 
-    @Query("UPDATE tran SET received = :received, clear = :clear WHERE id = :id")
+    @Query("UPDATE tran SET received = :received, clear = :clear WHERE id = :id AND received = 0")
     suspend fun dueReceived(received:Int, clear:Long, id: Int)
 
     @Query("SELECT SUM(`amount`) FROM tran WHERE uid = :userid AND received = 0")

@@ -28,12 +28,11 @@ class DetailsActivity : AppCompatActivity() {
         id = intent.getIntExtra("id", 0)
 
         binding.btnSaveTran.setOnClickListener {
-            if (binding.tranDetailIsClear.isChecked){
+            if (binding.tranDetailIsClear.isChecked && binding.tranDetailIsClear.isClickable){
                 saveTran()
             }else{
                 Toast.makeText(this, "nothing change", Toast.LENGTH_SHORT).show()
             }
-
         }
 
         CoroutineScope(Dispatchers.IO).launch {

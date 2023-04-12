@@ -46,6 +46,9 @@
             android:name=".CustomerActivity"
             android:exported="false" />
         <activity
+            android:name=".PinActivity"
+            android:exported="false" />
+        <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>

@@ -21,10 +21,20 @@ class SettingsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val prefManager = PrefManager(this)
         binding.smsSwitch.isChecked = prefManager.getBoolean("sms")
+        binding.lockSwitch.isChecked = prefManager.getBoolean("ispin")
 
         binding.restore.setOnClickListener { restore() }
         binding.smsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             prefManager.setBoolean("sms", isChecked)
+        }
+
+        binding.lockSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked){
+                val intent = Intent(this, PinActivity::class.java)
+                startForPinResult.launch(intent)
+            }else{
+                prefManager.setBoolean("ispin", false)
+            }
         }
     }
 
@@ -62,6 +72,15 @@ class SettingsActivity : AppCompatActivity() {
             }
 
 
+        }
+    }
+    private val startForPinResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data
+            if (data != null) {
+                PrefManager(this).setString("pin", data.getStringExtra("pin"))
+                PrefManager(this).setBoolean("ispin", true)
+            }
         }
     }
 }
