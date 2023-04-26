@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioGroup
@@ -11,6 +12,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.suman.ofllinekhata.adapter.TransactionAdapter
 import com.suman.ofllinekhata.databinding.ActivityTransactionBinding
@@ -47,8 +49,8 @@ class TransactionActivity : AppCompatActivity() {
         name = intent.getStringExtra("name") ?: ""
         number = intent.getStringExtra("number") ?: ""
         binding.toolbar.title = name
-
-        val dialog = BottomSheetDialog(this)
+        val dialog = BottomSheetDialog(this, R.style.DialogStyle)
+        //dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_dialog, null)
         val btnClose = view.findViewById<TextView>(R.id.ic_close)
         val dueType = view.findViewById<RadioGroup>(R.id.due_type)
@@ -82,6 +84,7 @@ class TransactionActivity : AppCompatActivity() {
         }
         dialog.setCancelable(true)
         dialog.setContentView(view)
+        dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
 
         adapter!!.setOnClickListener(object : OnClickListener {
             override fun onClick(id: Int, name: String, number:String) {
