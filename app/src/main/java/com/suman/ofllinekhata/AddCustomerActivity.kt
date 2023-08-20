@@ -12,11 +12,12 @@ import com.suman.ofllinekhata.entity.TransactionEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 class AddCustomerActivity : AppCompatActivity() {
     private val TAG = "AddCustomerActivity"
     private lateinit var binding: ActivityAddCustomerBinding
-    var type: Int = 0
+    private var type: Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddCustomerBinding.inflate(layoutInflater)
@@ -46,13 +47,13 @@ class AddCustomerActivity : AppCompatActivity() {
 
     private fun addCustomer() {
         if (binding.edCustomerName.text.isEmpty()){
-            binding.edCustomerName.setError("Please input name")
+            binding.edCustomerName.error = "Please input name"
             return
         }else if(binding.edCustomerNumber.text.isEmpty()){
-            binding.edCustomerNumber.setError("Please input number")
+            binding.edCustomerNumber.error = "Please input number"
             return
         }else if(binding.edCustomerAmount.text.isEmpty()){
-            binding.edCustomerAmount.setError("Please enter amount")
+            binding.edCustomerAmount.error = "Please enter amount"
             return
         }
         val name: String = binding.edCustomerName.text.toString()
@@ -71,7 +72,7 @@ class AddCustomerActivity : AppCompatActivity() {
             if (type == 0)amount = -amount
             try {
                 customerDao.insertAll(CustomerEntity(0, name, number, amount, time))
-                val uid = customerDao.getLastUser().get(0).id
+                val uid = customerDao.getLastUser()[0].id
                 transactionDao.insertAll(
                     TransactionEntity(
                         0,
@@ -89,21 +90,20 @@ class AddCustomerActivity : AppCompatActivity() {
                 }
                 val prefManager = PrefManager(this@AddCustomerActivity)
                 if (prefManager.getBoolean("sms")){
-                    var msgType: String;
-                    if (type == 0){
+                    val msgType: String = if (type == 0){
                         if (amount <= 0){
-                            msgType = Config.purchaseDue
+                            Config.purchaseDue
                         }else {
-                            msgType = Config.purchaseAdv
+                            Config.purchaseAdv
                         }
                     }else{
                         if (amount <= 0){
-                            msgType = Config.paidDue
+                            Config.paidDue
                         }else {
-                            msgType = Config.paidAdv
+                            Config.paidAdv
                         }
                     }
-                    val msg:String = String.format(msgType, name, Math.abs(amount), prefManager.getString("company"), Math.abs(amount))
+                    val msg:String = String.format(msgType, name, abs(amount), prefManager.getString("company"), abs(amount))
                     SMSManager.sendSMS(number, msg)
                 }
 
@@ -160,7 +160,7 @@ class AddCustomerActivity : AppCompatActivity() {
                     cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
                 val numberIndex =
                     cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                var name = cursor.getString(nameIndex)
+                val name = cursor.getString(nameIndex)
                 var number = cursor.getString(numberIndex)
                 number = number.toString().replace("+91", "").replace(" ", "").replace("-", "")
                 binding.edCustomerName.setText(name)

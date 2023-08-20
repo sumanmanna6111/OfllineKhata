@@ -20,7 +20,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Due \u20B9-250"
+        android:text="Due \u20B90.0"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="16sp"
@@ -35,7 +35,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Advance \u20B9200"
+        android:text="Advance \u20B90.0"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="16sp"
@@ -49,12 +49,12 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
+        tools:listitem="@layout/sample_customer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_total_debit">
-
     </androidx.recyclerview.widget.RecyclerView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -69,6 +69,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/baseline_add_24" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

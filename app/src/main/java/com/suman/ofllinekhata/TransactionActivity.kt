@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -25,14 +25,14 @@ import java.lang.Runnable
 class TransactionActivity : AppCompatActivity() {
     private val TAG = "TransactionActivity"
     private lateinit var binding: ActivityTransactionBinding
-    var tranList: ArrayList<TransactionModel>? = null
-    var adapter: TransactionAdapter? = null
-    var uid: Int = 0
+    private var tranList: ArrayList<TransactionModel>? = null
+    private var adapter: TransactionAdapter? = null
+    private var uid: Int = 0
     var name: String = ""
     var number: String = ""
-    var type: Int = 0
-    lateinit var mAmount: EditText
-    lateinit var mDescription: EditText
+    private var type: Int = 0
+    private lateinit var mAmount: EditText
+    private lateinit var mDescription: EditText
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +43,7 @@ class TransactionActivity : AppCompatActivity() {
         tranList = ArrayList<TransactionModel>()
         adapter = TransactionAdapter(tranList!!)
         binding.listTransaction.setHasFixedSize(true)
+        binding.listTransaction.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
         binding.listTransaction.layoutManager = LinearLayoutManager(this)
         binding.listTransaction.adapter = adapter
         uid = intent.getIntExtra("id", 0)
@@ -150,7 +151,7 @@ class TransactionActivity : AppCompatActivity() {
             if (type == 0)amount = -amount
             try {
                 customerDao.update(balance = amount, userid = uid)
-                var totalAmt: Float = customerDao.loadAllById(uid).amount
+                val totalAmt: Float = customerDao.loadAllById(uid).amount
                 transactionDao.insertAll(
                     TransactionEntity(
                         0,
@@ -168,18 +169,17 @@ class TransactionActivity : AppCompatActivity() {
                 }
                 val prefManager = PrefManager(this@TransactionActivity)
                 if (prefManager.getBoolean("sms")){
-                    var msgType: String;
-                    if (type == 0){
+                    val msgType: String = if (type == 0){
                         if (totalAmt <= 0){
-                            msgType = Config.purchaseDue
+                            Config.purchaseDue
                         }else {
-                            msgType = Config.purchaseAdv
+                            Config.purchaseAdv
                         }
                     }else{
                         if (totalAmt <= 0){
-                            msgType = Config.paidDue
+                            Config.paidDue
                         }else {
-                            msgType = Config.paidAdv
+                            Config.paidAdv
                         }
                     }
 

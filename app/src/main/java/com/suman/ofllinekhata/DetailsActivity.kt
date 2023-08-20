@@ -9,16 +9,16 @@ import com.suman.ofllinekhata.entity.CustomerEntity
 import com.suman.ofllinekhata.entity.TransactionEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.abs
 
 class DetailsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailsBinding
     var id: Int = 0
     var amount: Float = 0f
-    var uid: Int = 0
+    private var uid: Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailsBinding.inflate(layoutInflater)
@@ -41,7 +41,7 @@ class DetailsActivity : AppCompatActivity() {
     }
 
     private fun saveTran() {
-        val job = CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val db = Room.databaseBuilder(
                 applicationContext,
                 AppDatabase::class.java, "khata.db"
@@ -54,13 +54,12 @@ class DetailsActivity : AppCompatActivity() {
             val prefManager = PrefManager(this@DetailsActivity)
             if (prefManager.getBoolean("sms")){
                 val customer: CustomerEntity = customerDao.loadAllById(uid)
-                var msgType: String;
-                if (customer.amount <= 0){
-                    msgType = Config.paidDue
+                val msgType: String = if (customer.amount <= 0){
+                    Config.paidDue
                 }else {
-                    msgType = Config.paidAdv
+                    Config.paidAdv
                 }
-                val msg:String = String.format(msgType, customer.name, Math.abs(amount), prefManager.getString("company"), Math.abs(customer.amount) )
+                val msg:String = String.format(msgType, customer.name, abs(amount), prefManager.getString("company"), abs(customer.amount) )
                 SMSManager.sendSMS(customer.number, msg)
             }
 
@@ -85,11 +84,11 @@ class DetailsActivity : AppCompatActivity() {
                 db.close()
             }
             runOnUiThread {
-                binding.tranDetailAmt.setText(Math.abs(transactions.amount).toString())
+                binding.tranDetailAmt.setText(abs(transactions.amount).toString())
                 binding.tranDetailDesc.setText(transactions.description)
                 if (transactions.type == 1) binding.btnBebit.isChecked = true else binding.btnCredit.isChecked = true
-                binding.tranDetailIsClear.isChecked = if(transactions.received == 1)true else false
-                binding.tranDetailIsClear.isClickable = if(transactions.received == 1)false else true
+                binding.tranDetailIsClear.isChecked = transactions.received == 1
+                binding.tranDetailIsClear.isClickable = transactions.received != 1
                 binding.tranDetailClear.setText(
                     transactions.clear?.let { SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.ENGLISH).format(Date(it) )})
                 binding.tranDetailTime.setText(SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.ENGLISH).format(Date(transactions.time)))

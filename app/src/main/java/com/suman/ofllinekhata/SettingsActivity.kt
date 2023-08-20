@@ -24,11 +24,11 @@ class SettingsActivity : AppCompatActivity() {
         binding.lockSwitch.isChecked = prefManager.getBoolean("ispin")
 
         binding.restore.setOnClickListener { restore() }
-        binding.smsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+        binding.smsSwitch.setOnCheckedChangeListener { _, isChecked ->
             prefManager.setBoolean("sms", isChecked)
         }
 
-        binding.lockSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+        binding.lockSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked){
                 val intent = Intent(this, PinActivity::class.java)
                 startForPinResult.launch(intent)
@@ -63,8 +63,7 @@ class SettingsActivity : AppCompatActivity() {
                                 currentDBPath
                             ), true
                         )
-                        Toast.makeText(this, "backup imported successfully", Toast.LENGTH_LONG)
-                            .show()
+                        Toast.makeText(this, "backup imported successfully", Toast.LENGTH_LONG).show()
                     } catch (e: IOException) {
                         Toast.makeText(this, "something went wrong", Toast.LENGTH_LONG).show()
                     }

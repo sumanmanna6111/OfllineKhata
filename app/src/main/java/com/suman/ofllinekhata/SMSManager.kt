@@ -15,8 +15,7 @@ object SMSManager {
     }
 }
 
-/*
-* public class SMSManager {
+/* public class SMSManager {
     public static boolean sendSMS(String phoneNo, String msg) {
         try {
             SmsManager smsManager = SmsManager.getDefault();
@@ -26,9 +25,6 @@ object SMSManager {
             ex.printStackTrace();
             return false;
         }
-
     }
-
-
 }
 */

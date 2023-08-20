@@ -12,8 +12,8 @@ import com.suman.ofllinekhata.model.TransactionModel
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TransactionAdapter(val list: ArrayList<TransactionModel>): RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
-    var mListener: OnClickListener? = null
+class TransactionAdapter(private val list: ArrayList<TransactionModel>): RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
+    private var mListener: OnClickListener? = null
 
     fun setOnClickListener(listener: OnClickListener) {
         mListener = listener
@@ -36,9 +36,9 @@ class TransactionAdapter(val list: ArrayList<TransactionModel>): RecyclerView.Ad
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val transaction = list[position]
         if (transaction.received == 1){
-            holder.date.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG)
-            holder.amount.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG)
-            holder.desc.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG)
+            holder.date.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+            holder.amount.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+            holder.desc.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
         }
         holder.date.text = SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.ENGLISH).format(Date(transaction.date))
         holder.amount.text = "\u20B9${transaction.amount}"

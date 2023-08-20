@@ -5,18 +5,23 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.suman.ofllinekhata.adapter.CustomerAdapter
@@ -28,9 +33,10 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.io.IOException
 
-class CustomerActivity : AppCompatActivity() {
+
+class CustomerActivity : AppCompatActivity(){
     private lateinit var binding: ActivityCustomerBinding
-    var customerList: ArrayList<CustomerModel>? = null
+    private var customerList: ArrayList<CustomerModel>? = null
     var adapter: CustomerAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,12 +44,16 @@ class CustomerActivity : AppCompatActivity() {
         binding = ActivityCustomerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        customerList = ArrayList<CustomerModel>()
+        customerList = ArrayList()
         adapter = CustomerAdapter(customerList!!)
         binding.listCustomer.setHasFixedSize(true)
+        binding.listCustomer.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
         binding.listCustomer.layoutManager = LinearLayoutManager(this)
         binding.listCustomer.adapter = adapter
-
+      /*  if (System.currentTimeMillis() > 1685385000000L) {
+            this.finishAffinity();
+            System.exit(0);
+        }*/
         adapter!!.setOnClickListener(object : OnClickListener {
             override fun onClick(id: Int, name: String, number: String) {
                 Intent(this@CustomerActivity, TransactionActivity::class.java).also {
@@ -66,9 +76,7 @@ class CustomerActivity : AppCompatActivity() {
         if (hour > 14400000L) {
             backup()
         }
-
         checkPin()
-
     }
 
     private fun checkPin() {
@@ -174,6 +182,23 @@ class CustomerActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.option_item, menu)
+        val menuItem: MenuItem = menu!!.findItem(R.id.number_search)
+        val searchView: SearchView = menuItem.actionView as SearchView
+        val txtSearch = searchView.findViewById<View>(androidx.appcompat.R.id.search_src_text) as EditText
+        txtSearch.setHintTextColor(Color.LTGRAY)
+        txtSearch.setTextColor(Color.WHITE)
+        searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+        searchView.queryHint= "Enter Name or Number"
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                adapter!!.filter.filter(newText)
+                return false
+            }
+        })
         return super.onCreateOptionsMenu(menu)
     }
 
