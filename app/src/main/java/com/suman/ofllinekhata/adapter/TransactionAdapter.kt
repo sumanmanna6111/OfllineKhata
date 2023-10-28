@@ -1,5 +1,6 @@
 package com.suman.ofllinekhata.adapter
 
+import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
@@ -39,6 +40,16 @@ class TransactionAdapter(private val list: ArrayList<TransactionModel>): Recycle
             holder.date.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
             holder.amount.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
             holder.desc.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+            holder.date.setTextColor(Color.RED)
+            holder.amount.setTextColor(Color.RED)
+            holder.desc.setTextColor(Color.RED)
+        }else{
+            holder.date.paintFlags = Paint.LINEAR_TEXT_FLAG
+            holder.amount.paintFlags = Paint.LINEAR_TEXT_FLAG
+            holder.desc.paintFlags = Paint.LINEAR_TEXT_FLAG
+            holder.date.setTextColor(Color.BLACK)
+            holder.amount.setTextColor(Color.BLACK)
+            holder.desc.setTextColor(Color.BLACK)
         }
         holder.date.text = SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.ENGLISH).format(Date(transaction.date))
         holder.amount.text = "\u20B9${transaction.amount}"
