@@ -74,7 +74,7 @@ class TransactionActivity : AppCompatActivity() {
         }
         addBtn.setOnClickListener {
             if (mAmount.text.isEmpty()) {
-                mAmount.setError("Enter Amount")
+                mAmount.error = "Enter Amount"
             }else{
                 CoroutineScope(Dispatchers.Main).launch {
                     addRecord()
@@ -120,7 +120,7 @@ class TransactionActivity : AppCompatActivity() {
             val transactionDao = db.transactionDao()
             val transactions: List<TransactionEntity> = transactionDao.getCustomerTran(uid)
             val getTotal = transactionDao.getTotal(uid)
-            val balance =  "Total \u20B9${getTotal ?: 0.00f}"
+            val balance =  "\u20B9${getTotal ?: 0.00f}"
             if(db.isOpen) {
                 db.close()
             }
