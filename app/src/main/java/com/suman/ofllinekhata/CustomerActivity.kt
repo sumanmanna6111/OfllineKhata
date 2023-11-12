@@ -159,9 +159,9 @@ class CustomerActivity : AppCompatActivity(){
             val getCredit = customerDao.getTotalCredit()
             val getDebit = customerDao.getTotalDebit()
             if (db.isOpen) db.close()
-            val creditBalance = "Due \u20B9${getCredit ?: 0.00f}"
-            val debitBalance = "Advance \u20B9${getDebit ?: 0.00f}"
-            MainScope().launch(Dispatchers.Default) {
+            val creditBalance = "\u20B9${getCredit ?: 0.00f}"
+            val debitBalance = "\u20B9${getDebit ?: 0.00f}"
+            MainScope().launch(Dispatchers.Main) {
                 binding.tvTotalCredit.text = creditBalance
                 binding.tvTotalDebit.text = debitBalance
             }
