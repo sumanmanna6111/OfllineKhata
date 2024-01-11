@@ -1,8 +1,9 @@
-package com.suman.ofllinekhata
+package com.suman.ofllinekhata.ui
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.suman.ofllinekhata.helper.PrefManager
 import com.suman.ofllinekhata.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {

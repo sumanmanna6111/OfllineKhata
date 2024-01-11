@@ -1,4 +1,4 @@
-package com.suman.ofllinekhata
+package com.suman.ofllinekhata.ui
 
 import android.app.Activity
 import android.content.Intent
@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import com.suman.ofllinekhata.helper.PathUtils
+import com.suman.ofllinekhata.helper.PrefManager
 import com.suman.ofllinekhata.databinding.ActivitySettingsBinding
 import java.io.File
 import java.io.IOException

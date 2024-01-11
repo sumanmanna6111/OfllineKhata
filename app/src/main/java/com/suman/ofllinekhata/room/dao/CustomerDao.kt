@@ -1,7 +1,7 @@
-package com.suman.ofllinekhata.dao
+package com.suman.ofllinekhata.room.dao
 
 import androidx.room.*
-import com.suman.ofllinekhata.entity.CustomerEntity
+import com.suman.ofllinekhata.room.entity.CustomerEntity
 import org.jetbrains.annotations.NotNull
 
 @Dao

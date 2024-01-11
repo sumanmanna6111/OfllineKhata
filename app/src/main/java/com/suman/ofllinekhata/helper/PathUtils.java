@@ -1,4 +1,4 @@
-package com.suman.ofllinekhata;
+package com.suman.ofllinekhata.helper;
 
 import android.content.ContentUris;
 import android.content.Context;

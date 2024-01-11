@@ -1,14 +1,18 @@
-package com.suman.ofllinekhata
+package com.suman.ofllinekhata.ui
 
 import android.content.Intent
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.room.Room
+import com.suman.ofllinekhata.room.AppDatabase
+import com.suman.ofllinekhata.helper.Config
+import com.suman.ofllinekhata.helper.PrefManager
+import com.suman.ofllinekhata.R
+import com.suman.ofllinekhata.helper.SMSManager
 import com.suman.ofllinekhata.databinding.ActivityAddCustomerBinding
-import com.suman.ofllinekhata.entity.CustomerEntity
-import com.suman.ofllinekhata.entity.TransactionEntity
+import com.suman.ofllinekhata.room.entity.CustomerEntity
+import com.suman.ofllinekhata.room.entity.TransactionEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -63,10 +67,7 @@ class AddCustomerActivity : AppCompatActivity() {
         val time: Long = System.currentTimeMillis()
 
         CoroutineScope(Dispatchers.IO).launch {
-            val db = Room.databaseBuilder(
-                applicationContext,
-                AppDatabase::class.java, "khata.db"
-            ).build()
+            val db = AppDatabase.getDataBase(applicationContext)
             val customerDao = db.customerDao()
             val transactionDao = db.transactionDao()
             if (type == 0)amount = -amount
@@ -143,6 +144,7 @@ class AddCustomerActivity : AppCompatActivity() {
 
     }*/
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 300 && resultCode == RESULT_OK) {

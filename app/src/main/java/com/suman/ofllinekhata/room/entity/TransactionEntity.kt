@@ -1,4 +1,4 @@
-package com.suman.ofllinekhata.entity
+package com.suman.ofllinekhata.room.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

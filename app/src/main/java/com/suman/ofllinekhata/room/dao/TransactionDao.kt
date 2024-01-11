@@ -1,10 +1,10 @@
-package com.suman.ofllinekhata.dao
+package com.suman.ofllinekhata.room.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import com.suman.ofllinekhata.entity.TransactionEntity
+import com.suman.ofllinekhata.room.entity.TransactionEntity
 
 @Dao
 interface TransactionDao {
@@ -15,7 +15,7 @@ interface TransactionDao {
     suspend fun getCustomerTran(userid: Int): List<TransactionEntity>
 
     @Query("SELECT * FROM tran WHERE id = :id")
-    suspend fun getTranDetails(id: Int):  TransactionEntity
+    suspend fun getTranDetails(id: Int): TransactionEntity
 
     @Query("UPDATE tran SET received = :received, clear = :clear WHERE id = :id AND received = 0")
     suspend fun dueReceived(received:Int, clear:Long, id: Int)
