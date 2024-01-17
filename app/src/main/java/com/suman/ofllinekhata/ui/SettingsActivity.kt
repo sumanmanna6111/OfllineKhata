@@ -2,8 +2,10 @@ package com.suman.ofllinekhata.ui
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -45,7 +47,8 @@ class SettingsActivity : AppCompatActivity() {
         return super.onSupportNavigateUp()
     }
     private fun restore() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT).setType("application/octet-stream")
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "application/octet-stream"
         startForResult.launch(intent)
     }
 
@@ -58,15 +61,19 @@ class SettingsActivity : AppCompatActivity() {
                 if (file.extension == "db" && file.length() > 0) {
                     try {
                         val currentDBPath = getDatabasePath("khata.db").absolutePath
-                        //Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
-                        //Log.d("TAG", "onOptionsItemSelected: $path")
-                        File(path).copyTo(
-                            File(
-                                currentDBPath
-                            ), true
-                        )
-                        Toast.makeText(this, "backup imported successfully", Toast.LENGTH_LONG).show()
+                        Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
+                        Log.d("TAG", "onOptionsItemSelected: $path")
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                            File(path).copyTo(
+                                File(
+                                    currentDBPath
+                                ), true
+                            )
+                            Toast.makeText(this, "backup imported successfully", Toast.LENGTH_LONG)
+                                .show()
+                        }
                     } catch (e: IOException) {
+                        e.printStackTrace()
                         Toast.makeText(this, "something went wrong", Toast.LENGTH_LONG).show()
                     }
                 }

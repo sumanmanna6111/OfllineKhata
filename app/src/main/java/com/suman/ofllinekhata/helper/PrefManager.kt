@@ -13,48 +13,48 @@ class PrefManager(context: Context) {
         editor = sharedPreference.edit()
     }
 
-    fun setBoolean(PREF_NAME: String?, VALUE: Boolean?) {
-        editor.putBoolean(PREF_NAME, VALUE!!)
+    fun setBoolean(key: String, value: Boolean) {
+        editor.putBoolean(key, value)
         editor.commit()
     }
 
-    fun setString(PREF_NAME: String?, VALUE: String?) {
-        editor.putString(PREF_NAME, VALUE)
+    fun setString(key: String, value: String?) {
+        editor.putString(key, value)
         editor.commit()
     }
 
-    fun setInt(PREF_NAME: String?, VALUE: Int) {
-        editor.putInt(PREF_NAME, VALUE)
+    fun setInt(key: String, value: Int) {
+        editor.putInt(key, value)
         editor.commit()
     }
 
-    fun getBoolean(PREF_NAME: String?): Boolean {
-        return sharedPreference.getBoolean(PREF_NAME, false)
+    fun getBoolean(key: String): Boolean {
+        return sharedPreference.getBoolean(key, false)
     }
 
-    fun setLong(PREF_NAME: String?, VALUE: Long) {
-        editor.putLong(PREF_NAME, VALUE)
+    fun setLong(key: String, value: Long) {
+        editor.putLong(key, value)
         editor.commit()
     }
 
-    fun getLong(key: String?): Long {
+    fun getLong(key: String): Long {
         return sharedPreference.getLong(key, 0)
     }
 
-    fun getString(PREF_NAME: String?): String? {
-        return if (sharedPreference.contains(PREF_NAME)) {
-            sharedPreference.getString(PREF_NAME, null)
+    fun getString(key: String): String? {
+        return if (sharedPreference.contains(key)) {
+            sharedPreference.getString(key, null)
         } else ""
     }
 
-    fun remove(PREF_NAME: String?) {
-        if (sharedPreference.contains(PREF_NAME)) {
-            editor.remove(PREF_NAME)
+    fun remove(key: String) {
+        if (sharedPreference.contains(key)) {
+            editor.remove(key)
             editor.commit()
         }
     }
 
-    fun getInt(key: String?): Int {
+    fun getInt(key: String): Int {
         return sharedPreference.getInt(key, 0)
     }
 

@@ -5,6 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -19,6 +22,9 @@ import com.suman.ofllinekhata.databinding.BottomSheetDialogBinding
 import com.suman.ofllinekhata.room.entity.TransactionEntity
 import com.suman.ofllinekhata.interfaces.OnClickListener
 import com.suman.ofllinekhata.model.TransactionModel
+import com.suman.ofllinekhata.repository.TransactionRepository
+import com.suman.ofllinekhata.viewmodel.TransactionViewModel
+import com.suman.ofllinekhata.viewmodelfactory.TransactionViewModelFactory
 import kotlinx.coroutines.*
 import java.lang.Runnable
 import kotlin.math.abs
@@ -26,22 +32,27 @@ import kotlin.math.abs
 class TransactionActivity : AppCompatActivity() {
     private val TAG = "TransactionActivity"
     private lateinit var binding: ActivityTransactionBinding
-    private var tranList: ArrayList<TransactionModel> = ArrayList()
-    private var adapter: TransactionAdapter? = null
+    private lateinit var transactionViewModel: TransactionViewModel
+    private var tranList: ArrayList<TransactionEntity> = ArrayList()
+    private lateinit var adapter: TransactionAdapter
     private var uid: Int = 0
     var name: String = ""
     var number: String = ""
     private var type: Int = 0
+    private var balance = 0f
     private lateinit var prefManager: PrefManager
     private lateinit var bottomSheet: BottomSheetDialogBinding
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityTransactionBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_transaction)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        val  database = AppDatabase.getDataBase(applicationContext)
+        val repository = TransactionRepository(database)
+        transactionViewModel = ViewModelProvider(this, TransactionViewModelFactory(repository))[TransactionViewModel::class.java]
+
         adapter = TransactionAdapter(tranList)
         prefManager = PrefManager(this@TransactionActivity)
         binding.listTransaction.addItemDecoration(
@@ -101,9 +112,7 @@ class TransactionActivity : AppCompatActivity() {
             if (bottomSheet.edCustomerAmount.text.isEmpty()) {
                 bottomSheet.edCustomerAmount.error = "Enter Amount"
             } else {
-                CoroutineScope(Dispatchers.Main).launch {
-                    addRecord()
-                }
+                addRecord()
                 dialog.dismiss()
             }
 
@@ -112,13 +121,18 @@ class TransactionActivity : AppCompatActivity() {
         dialog.setContentView(bottomSheet.root)
         dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
 
-        adapter!!.setOnClickListener(object : OnClickListener {
+        adapter.setOnClickListener(object : OnClickListener {
             override fun onClick(id: Int, name: String, number: String) {
                 startActivity(
                     Intent(
                         this@TransactionActivity,
                         DetailsActivity::class.java
-                    ).putExtra("id", id)
+                    ).also {
+                        it.putExtra("id", id)
+                        it.putExtra("name", name)
+                        it.putExtra("number", number)
+                        it.putExtra("amount", balance)
+                    }
                 )
             }
         })
@@ -126,89 +140,46 @@ class TransactionActivity : AppCompatActivity() {
         binding.btnAddTran.setOnClickListener {
             dialog.show()
         }
+        getCustomer()
     }
 
-    override fun onStart() {
-        super.onStart()
-        CoroutineScope(Dispatchers.IO).launch {
-            getCustomer()
-        }
-    }
 
     override fun onSupportNavigateUp(): Boolean {
         finish()
         return super.onSupportNavigateUp()
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private suspend fun getCustomer() {
-        tranList.clear()
-        val job = CoroutineScope(Dispatchers.IO).launch {
-            val db = AppDatabase.getDataBase(applicationContext)
-            val transactionDao = db.transactionDao()
-            val transactions: List<TransactionEntity> = transactionDao.getCustomerTran(uid)
-            val getTotal = transactionDao.getTotal(uid)
-            val balance = getTotal ?: 0.00f
-            if (db.isOpen) {
-                db.close()
+    private fun getCustomer() {
+        transactionViewModel.getTransaction(uid).observe(this, Observer {
+            adapter.updateList(it)
+        })
+        transactionViewModel.getTotal(uid).observe(this, Observer {
+            balance = it ?: 0.00f
+            if (balance < 0) {
+                binding.credit = "\u20B9${balance}"
+                binding.debit = "₹0.0"
+            }else{
+                binding.credit = "₹0.0"
+                binding.debit = "\u20B9${balance}"
             }
-            runOnUiThread(Runnable {
-                if (balance < 0) {
-                    val dueAmt = "\u20B9${balance}"
-                    binding.tvTotalBal.text = dueAmt
-                    binding.tvTotalDebit.text = "₹0.0"
-                }else{
-                    val advAmt = "\u20B9${balance}"
-                    binding.tvTotalDebit.text = advAmt
-                    binding.tvTotalBal.text = "₹0.0"
-                }
-            })
-            for (transaction in transactions) {
-                tranList.add(
-                    TransactionModel(
-                        transaction.id,
-                        transaction.amount,
-                        transaction.description,
-                        transaction.received,
-                        transaction.time
-                    )
-                )
-            }
-        }
-        job.join()
-        runOnUiThread { adapter?.notifyDataSetChanged() }
+        })
+
 
     }
 
-    private suspend fun addRecord() {
+    private fun addRecord() {
         var amount: Float = bottomSheet.edCustomerAmount.text.toString().toFloat()
         val description: String = bottomSheet.edCustomerDesc.text.toString()
         val time: Long = System.currentTimeMillis()
 
-        val job = CoroutineScope(Dispatchers.IO).launch {
-            val db = AppDatabase.getDataBase(applicationContext)
-            val customerDao = db.customerDao()
-            val transactionDao = db.transactionDao()
+            //val db = AppDatabase.getDataBase(applicationContext)
+            //val customerDao = db.customerDao()
+            //val transactionDao = db.transactionDao()
             if (type == 0) amount = -amount
             try {
-                customerDao.update(balance = amount, userid = uid)
-                val totalAmt: Float = customerDao.loadAllById(uid).amount
-                transactionDao.insertAll(
-                    TransactionEntity(
-                        0,
-                        uid,
-                        type,
-                        description,
-                        amount,
-                        0,
-                        null,
-                        time
-                    )
-                )
-                if (db.isOpen) {
-                    db.close()
-                }
-
+                transactionViewModel.addTransaction(uid, type, description, amount)
+                transactionViewModel.updateBalance(amount, uid)
+                val totalAmt: Float = amount
                 if (prefManager.getBoolean("sms")) {
                     val msgType: String = if (type == 0) {
                         if (totalAmt <= 0) {
@@ -238,13 +209,8 @@ class TransactionActivity : AppCompatActivity() {
                 Log.d(TAG, "addRecord: ${e.printStackTrace()}")
             }
 
-        }
-        job.join()
-        runOnUiThread {
-            bottomSheet.edCustomerAmount.text = null
-            bottomSheet.edCustomerDesc.text = null
-        }
-        getCustomer()
+        bottomSheet.edCustomerAmount.text = null
+        bottomSheet.edCustomerDesc.text = null
 
     }
 }

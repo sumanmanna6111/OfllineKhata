@@ -7,19 +7,21 @@ import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.DiffUtil.ItemCallback
 import androidx.recyclerview.widget.RecyclerView
 import com.suman.ofllinekhata.R
 import com.suman.ofllinekhata.interfaces.OnClickListener
-import com.suman.ofllinekhata.model.CustomerModel
+import com.suman.ofllinekhata.room.entity.CustomerEntity
 import java.util.Locale
 
 
-class CustomerAdapter(var list: ArrayList<CustomerModel>): RecyclerView.Adapter<CustomerAdapter.ViewHolder>() , Filterable{
+class CustomerAdapter(var list: ArrayList<CustomerEntity>): RecyclerView.Adapter<CustomerAdapter.ViewHolder>() , Filterable{
     private var mListener: OnClickListener? = null
     fun setOnClickListener(listener: OnClickListener) {
         mListener = listener
     }
-    var filterList = ArrayList<CustomerModel>()
+    var filterList = ArrayList<CustomerEntity>()
     init {
         filterList = list
     }
@@ -36,17 +38,25 @@ class CustomerAdapter(var list: ArrayList<CustomerModel>): RecyclerView.Adapter<
         val customer = filterList[position]
         holder.name.text = customer.name
         holder.number.text = customer.number
-        holder.balance.text = "\u20B9${customer.balance}"
+        holder.balance.text = "\u20B9${customer.amount}"
         holder.itemView.setOnClickListener {
             mListener!!.onClick(customer.id, customer.name, customer.number)
         }
     }
 
-    class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
+    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         val name: TextView = itemView.findViewById(R.id.tv_customer_name)
         val number: TextView = itemView.findViewById(R.id.tv_customer_phone)
         val balance: TextView = itemView.findViewById(R.id.tv_customer_amount)
 
+    }
+
+    fun updateAdapter(mList: List<CustomerEntity>){
+        list.clear()
+        filterList.clear()
+        list.addAll(mList)
+        filterList = list
+        notifyDataSetChanged()
     }
 
     override fun getFilter(): Filter {
@@ -56,7 +66,7 @@ class CustomerAdapter(var list: ArrayList<CustomerModel>): RecyclerView.Adapter<
                 if (charSearch.isEmpty()) {
                     filterList = list
                 } else {
-                    val resultList = ArrayList<CustomerModel>()
+                    val resultList = ArrayList<CustomerEntity>()
                     for (row in list) {
                         val name = row.name.lowercase(Locale.getDefault()) + row.number.lowercase(Locale.getDefault())
                         if (name.contains(constraint.toString().lowercase(Locale.getDefault()))) {
@@ -72,9 +82,20 @@ class CustomerAdapter(var list: ArrayList<CustomerModel>): RecyclerView.Adapter<
 
             @SuppressLint("NotifyDataSetChanged")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                filterList = results?.values as ArrayList<CustomerModel>
+                filterList = results?.values as ArrayList<CustomerEntity>
                 notifyDataSetChanged()
             }
         }
+    }
+
+    class DiffUtil : ItemCallback<CustomerEntity>(){
+        override fun areItemsTheSame(oldItem: CustomerEntity, newItem: CustomerEntity): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: CustomerEntity, newItem: CustomerEntity): Boolean {
+            return oldItem == newItem
+        }
+
     }
 }

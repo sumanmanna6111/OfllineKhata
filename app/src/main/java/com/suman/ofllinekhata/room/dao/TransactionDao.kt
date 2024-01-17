@@ -1,5 +1,6 @@
 package com.suman.ofllinekhata.room.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -12,16 +13,16 @@ interface TransactionDao {
     suspend fun getAll(): List<TransactionEntity>
 
     @Query("SELECT * FROM tran WHERE uid = :userid ORDER BY id DESC")
-    suspend fun getCustomerTran(userid: Int): List<TransactionEntity>
+    fun getCustomerTran(userid: Int): LiveData<List<TransactionEntity>>
 
     @Query("SELECT * FROM tran WHERE id = :id")
-    suspend fun getTranDetails(id: Int): TransactionEntity
+    fun getTranDetails(id: Int): LiveData<TransactionEntity>
 
     @Query("UPDATE tran SET received = :received, clear = :clear WHERE id = :id AND received = 0")
     suspend fun dueReceived(received:Int, clear:Long, id: Int)
 
     @Query("SELECT SUM(`amount`) FROM tran WHERE uid = :userid AND received = 0")
-    suspend fun getTotal(userid: Int): Float?
+    fun getTotal(userid: Int): LiveData<Float?>
 
     @Query("SELECT * FROM tran WHERE id IN (:userIds)")
     suspend fun loadAllByIds(userIds: IntArray): List<TransactionEntity>

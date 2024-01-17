@@ -5,22 +5,23 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.MediaStore.Files
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.suman.ofllinekhata.room.AppDatabase
 import com.suman.ofllinekhata.helper.PrefManager
@@ -29,9 +30,12 @@ import com.suman.ofllinekhata.adapter.CustomerAdapter
 import com.suman.ofllinekhata.databinding.ActivityCustomerBinding
 import com.suman.ofllinekhata.room.entity.CustomerEntity
 import com.suman.ofllinekhata.interfaces.OnClickListener
-import com.suman.ofllinekhata.model.CustomerModel
+import com.suman.ofllinekhata.repository.CustomerRepository
+import com.suman.ofllinekhata.viewmodel.CustomerViewModel
+import com.suman.ofllinekhata.viewmodelfactory.CustomerViewModelFactory
 import kotlinx.coroutines.*
 import java.io.File
+import java.io.FileWriter
 import java.io.IOException
 
 
@@ -41,20 +45,24 @@ class CustomerActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityCustomerBinding
-    private var customerList: ArrayList<CustomerModel> = ArrayList()
-    var adapter: CustomerAdapter? = null
+    private lateinit var customerViewModel: CustomerViewModel
+    private var customerList: ArrayList<CustomerEntity> = ArrayList()
+    private lateinit var adapter: CustomerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCustomerBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_customer)
         setSupportActionBar(binding.toolbar)
+
+        val dao = AppDatabase.getDataBase(applicationContext).customerDao()
+        val repository = CustomerRepository(dao)
+        customerViewModel = ViewModelProvider(this, CustomerViewModelFactory(repository))[CustomerViewModel::class.java]
+
         adapter = CustomerAdapter(customerList)
         binding.listCustomer.setHasFixedSize(true)
         binding.listCustomer.addItemDecoration(
             DividerItemDecoration(
-                this,
-                DividerItemDecoration.VERTICAL
+                this, DividerItemDecoration.VERTICAL
             )
         )
         binding.listCustomer.adapter = adapter
@@ -82,7 +90,7 @@ class CustomerActivity : AppCompatActivity() {
 
             }
         })*/
-        adapter!!.setOnClickListener(object : OnClickListener {
+        adapter.setOnClickListener(object : OnClickListener {
             override fun onClick(id: Int, name: String, number: String) {
                 Intent(this@CustomerActivity, TransactionActivity::class.java).also {
                     it.putExtra("id", id)
@@ -104,6 +112,8 @@ class CustomerActivity : AppCompatActivity() {
         if (hour > 14400000L) {
             backup()
         }
+
+        getCustomer()
         checkPin()
     }
 
@@ -111,14 +121,6 @@ class CustomerActivity : AppCompatActivity() {
         if (PrefManager(this).getBoolean("ispin")) {
             val intent = Intent(this, PinActivity::class.java)
             startForPinResult.launch(intent)
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        customerList.clear()
-        CoroutineScope(Dispatchers.IO).launch {
-            getCustomer()
         }
     }
 
@@ -180,34 +182,20 @@ class CustomerActivity : AppCompatActivity() {
 
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private suspend fun getCustomer() {
-        val job = CoroutineScope(Dispatchers.IO).launch {
-            val db = AppDatabase.getDataBase(applicationContext)
-            val customerDao = db.customerDao()
-            val customers: List<CustomerEntity> = customerDao.getAll()
-            val getCredit = customerDao.getTotalCredit()
-            val getDebit = customerDao.getTotalDebit()
-            if (db.isOpen) db.close()
-            val creditBalance = "\u20B9${getCredit ?: 0.00f}"
-            val debitBalance = "\u20B9${getDebit ?: 0.00f}"
-            MainScope().launch(Dispatchers.Main) {
-                binding.tvTotalCredit.text = creditBalance
-                binding.tvTotalDebit.text = debitBalance
-            }
-            for (customer in customers) {
-                customerList.add(
-                    CustomerModel(
-                        customer.id,
-                        customer.name,
-                        customer.number,
-                        customer.amount
-                    )
-                )
-            }
-        }
-        job.join()
-        runOnUiThread { adapter?.notifyDataSetChanged() }
+    private fun getCustomer() {
+        customerViewModel.getTotalCredit().observe(this, Observer {
+            binding.due = "\u20B9 ${it ?: 0.00f}"
+        })
+
+        customerViewModel.getTotalDebit().observe(this, Observer {
+            binding.advance = "\u20B9 ${it ?: 0.00f}"
+        })
+
+        customerViewModel.getCustomer().observe(this, Observer {
+            Log.d(TAG, "getCustomer: ${it.toString()}")
+            adapter.updateAdapter(it)
+        })
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -255,11 +243,13 @@ class CustomerActivity : AppCompatActivity() {
         try {
             val currentDBPath = getDatabasePath("khata.db").absolutePath
             val storage = Environment.getExternalStorageDirectory().absolutePath
-            /*Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
-            Log.d("TAG", "onOptionsItemSelected: $storage")*/
-            File(currentDBPath).copyTo(File("$storage/OfflineKhata/backup.db"), true)
-            Toast.makeText(this, "Backup to OfflineKhata/backup.db", Toast.LENGTH_LONG).show()
-            PrefManager(this).setLong("backup", System.currentTimeMillis())
+            Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
+            Log.d("TAG", "onOptionsItemSelected: $storage")
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
+                File(currentDBPath).copyTo(File("$storage/OfflineKhata/backup.db"), true)
+                Toast.makeText(this, "Backup to OfflineKhata/backup.db", Toast.LENGTH_LONG).show()
+                PrefManager(this).setLong("backup", System.currentTimeMillis())
+            }
         } catch (e: IOException) {
             Log.e(TAG, "backup: ", e)
             Toast.makeText(this, "failed to write external storage", Toast.LENGTH_LONG).show()

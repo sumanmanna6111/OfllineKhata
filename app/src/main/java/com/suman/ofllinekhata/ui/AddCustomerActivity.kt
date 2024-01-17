@@ -5,29 +5,42 @@ import android.os.Bundle
 import android.provider.ContactsContract
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import com.suman.ofllinekhata.room.AppDatabase
 import com.suman.ofllinekhata.helper.Config
 import com.suman.ofllinekhata.helper.PrefManager
 import com.suman.ofllinekhata.R
 import com.suman.ofllinekhata.helper.SMSManager
 import com.suman.ofllinekhata.databinding.ActivityAddCustomerBinding
+import com.suman.ofllinekhata.repository.AddCustomerRepository
 import com.suman.ofllinekhata.room.entity.CustomerEntity
 import com.suman.ofllinekhata.room.entity.TransactionEntity
+import com.suman.ofllinekhata.viewmodel.AddCustomerViewModel
+import com.suman.ofllinekhata.viewmodelfactory.AddCustomerViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 class AddCustomerActivity : AppCompatActivity() {
-    private val TAG = "AddCustomerActivity"
+    companion object{
+        const val TAG = "AddCustomerActivity"
+    }
     private lateinit var binding: ActivityAddCustomerBinding
+    private lateinit var addCustomerViewModel: AddCustomerViewModel
+    private lateinit var prefManager: PrefManager
     private var type: Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAddCustomerBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_add_customer)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        prefManager = PrefManager(this@AddCustomerActivity)
+        val database = AppDatabase.getDataBase(applicationContext)
+        val repository = AddCustomerRepository(database)
+        addCustomerViewModel = ViewModelProvider(this, AddCustomerViewModelFactory(repository))[AddCustomerViewModel::class.java]
+
         binding.dueType.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.btn_credit -> {
@@ -64,55 +77,30 @@ class AddCustomerActivity : AppCompatActivity() {
         val number: String = binding.edCustomerNumber.text.toString()
         var amount: Float = binding.edCustomerAmount.text.toString().toFloat()
         val description: String = binding.edCustomerDesc.text.toString()
-        val time: Long = System.currentTimeMillis()
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val db = AppDatabase.getDataBase(applicationContext)
-            val customerDao = db.customerDao()
-            val transactionDao = db.transactionDao()
+        try {
             if (type == 0)amount = -amount
-            try {
-                customerDao.insertAll(CustomerEntity(0, name, number, amount, time))
-                val uid = customerDao.getLastUser()[0].id
-                transactionDao.insertAll(
-                    TransactionEntity(
-                        0,
-                        uid,
-                        type,
-                        description,
-                        amount,
-                        0,
-                        null,
-                        time
-                    )
-                )
-                if(db.isOpen) {
-                    db.close()
-                }
-                val prefManager = PrefManager(this@AddCustomerActivity)
-                if (prefManager.getBoolean("sms")){
-                    val msgType: String = if (type == 0){
-                        if (amount <= 0){
-                            Config.purchaseDue
-                        }else {
-                            Config.purchaseAdv
-                        }
-                    }else{
-                        if (amount <= 0){
-                            Config.paidDue
-                        }else {
-                            Config.paidAdv
-                        }
+            addCustomerViewModel.addCustomer(name, number, amount, type, description)
+            if (prefManager.getBoolean("sms")){
+                val msgType: String = if (type == 0){
+                    if (amount <= 0){
+                        Config.purchaseDue
+                    }else {
+                        Config.purchaseAdv
                     }
-                    val msg:String = String.format(msgType, name, abs(amount), prefManager.getString("company"), abs(amount))
-                    SMSManager.sendSMS(number, msg)
+                }else{
+                    if (amount <= 0){
+                        Config.paidDue
+                    }else {
+                        Config.paidAdv
+                    }
                 }
-
-                finish()
-            }catch (e: Exception){
-                Log.d(TAG, "addCustomer: ${e.printStackTrace()}")
+                val msg:String = String.format(msgType, name, abs(amount), prefManager.getString("company"), abs(amount))
+                SMSManager.sendSMS(number, msg)
             }
 
+            finish()
+        }catch (e: Exception){
+            Log.d(TAG, "addCustomer: ${e.printStackTrace()}")
         }
     }
 

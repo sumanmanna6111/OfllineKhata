@@ -7,10 +7,10 @@ import com.suman.ofllinekhata.room.AppDatabase
 import com.suman.ofllinekhata.viewmodel.LoginViewModel
 import java.lang.IllegalArgumentException
 
-class LoginViewModelFactory(private val database: AppDatabase, private val application: Application) : ViewModelProvider.Factory {
+class LoginViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)){
-            return LoginViewModel(database, application) as T
+            return LoginViewModel(application) as T
         }
         throw IllegalArgumentException("Unknown ViewModel Class")
     }
