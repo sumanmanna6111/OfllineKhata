@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.suman.ofllinekhata.helper.PathUtils
 import com.suman.ofllinekhata.helper.PrefManager
 import com.suman.ofllinekhata.databinding.ActivitySettingsBinding
+import com.suman.ofllinekhata.room.AppDatabase
 import java.io.File
 import java.io.IOException
 
@@ -43,9 +44,17 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
+        startActivity(Intent(this, CustomerActivity::class.java))
         finish()
         return super.onSupportNavigateUp()
     }
+
+    override fun onBackPressed() {
+        startActivity(Intent(this, CustomerActivity::class.java))
+        finish()
+        super.onBackPressed()
+    }
+
     private fun restore() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "application/octet-stream"
@@ -60,6 +69,8 @@ class SettingsActivity : AppCompatActivity() {
                 val file = File(path)
                 if (file.extension == "db" && file.length() > 0) {
                     try {
+                        val db = AppDatabase.getDataBase(applicationContext)
+                        if (db.isOpen) db.close()
                         val currentDBPath = getDatabasePath("khata.db").absolutePath
                         Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
                         Log.d("TAG", "onOptionsItemSelected: $path")

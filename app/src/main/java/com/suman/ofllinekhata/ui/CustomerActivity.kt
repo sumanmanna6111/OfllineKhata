@@ -5,9 +5,11 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.MediaStore.AUTHORITY
 import android.provider.MediaStore.Files
 import android.util.Log
 import android.view.Menu
@@ -19,10 +21,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
+import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
+import com.suman.ofllinekhata.BuildConfig
 import com.suman.ofllinekhata.room.AppDatabase
 import com.suman.ofllinekhata.helper.PrefManager
 import com.suman.ofllinekhata.R
@@ -48,7 +52,7 @@ class CustomerActivity : AppCompatActivity() {
     private lateinit var customerViewModel: CustomerViewModel
     private var customerList: ArrayList<CustomerEntity> = ArrayList()
     private lateinit var adapter: CustomerAdapter
-
+    private var totalCustomer = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_customer)
@@ -56,7 +60,10 @@ class CustomerActivity : AppCompatActivity() {
 
         val dao = AppDatabase.getDataBase(applicationContext).customerDao()
         val repository = CustomerRepository(dao)
-        customerViewModel = ViewModelProvider(this, CustomerViewModelFactory(repository))[CustomerViewModel::class.java]
+        customerViewModel = ViewModelProvider(
+            this,
+            CustomerViewModelFactory(repository)
+        )[CustomerViewModel::class.java]
 
         adapter = CustomerAdapter(customerList)
         binding.listCustomer.setHasFixedSize(true)
@@ -172,7 +179,7 @@ class CustomerActivity : AppCompatActivity() {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissions  = arrayOf(
+            permissions = arrayOf(
                 Manifest.permission.SEND_SMS,
                 Manifest.permission.READ_CONTACTS
             )
@@ -192,8 +199,8 @@ class CustomerActivity : AppCompatActivity() {
         })
 
         customerViewModel.getCustomer().observe(this, Observer {
-            Log.d(TAG, "getCustomer: ${it.toString()}")
             adapter.updateAdapter(it)
+            totalCustomer = it.size
         })
 
     }
@@ -213,7 +220,7 @@ class CustomerActivity : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                adapter!!.filter.filter(newText)
+                adapter.filter.filter(newText)
                 return false
             }
         })
@@ -222,15 +229,19 @@ class CustomerActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.setting -> startActivity(
-                Intent(
-                    this@CustomerActivity,
-                    SettingsActivity::class.java
+            R.id.setting -> {
+                startActivity(
+                    Intent(
+                        this@CustomerActivity,
+                        SettingsActivity::class.java
+                    )
                 )
-            )
+                finish()
+            }
 
             R.id.backup -> {
                 backup()
+                shareBackup()
             }
 
             R.id.about -> {
@@ -239,16 +250,40 @@ class CustomerActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    private fun shareBackup() {
+        try {
+            if (totalCustomer > 0) {
+                val currentDBPath = getDatabasePath("khata.db").absolutePath
+                val uri = Uri.parse(currentDBPath)
+                val sendIntent = Intent(Intent.ACTION_SEND)
+                sendIntent.type = "*/*"
+                sendIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                sendIntent.putExtra(Intent.EXTRA_STREAM, uri)
+                startActivity(sendIntent)
+            }else{
+                Toast.makeText(this, "You have no transaction", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+    }
+
     private fun backup() {
         try {
-            val currentDBPath = getDatabasePath("khata.db").absolutePath
-            val storage = Environment.getExternalStorageDirectory().absolutePath
-            Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
-            Log.d("TAG", "onOptionsItemSelected: $storage")
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
-                File(currentDBPath).copyTo(File("$storage/OfflineKhata/backup.db"), true)
-                Toast.makeText(this, "Backup to OfflineKhata/backup.db", Toast.LENGTH_LONG).show()
-                PrefManager(this).setLong("backup", System.currentTimeMillis())
+            if (totalCustomer > 0) {
+                val currentDBPath = getDatabasePath("khata.db").absolutePath
+                val storage = Environment.getExternalStorageDirectory().absolutePath
+                Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
+                Log.d("TAG", "onOptionsItemSelected: $storage")
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                    File(currentDBPath).copyTo(File("$storage/OfflineKhata/backup.db"), true)
+                    Toast.makeText(this, "Backup to OfflineKhata/backup.db", Toast.LENGTH_LONG)
+                        .show()
+                    PrefManager(this).setLong("backup", System.currentTimeMillis())
+                }
+            }else{
+                Toast.makeText(this, "You have no transaction", Toast.LENGTH_SHORT).show()
             }
         } catch (e: IOException) {
             Log.e(TAG, "backup: ", e)
