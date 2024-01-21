@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.suman.ofllinekhata.room.entity.TransactionEntity
 
@@ -33,9 +34,8 @@ interface TransactionDao {
             "amount LIKE :last LIMIT 1")
     suspend fun findByName(first: String, last: String): TransactionEntity
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(vararg transaction: TransactionEntity)
-
     @Delete
     suspend fun delete(transaction: TransactionEntity)
 }
