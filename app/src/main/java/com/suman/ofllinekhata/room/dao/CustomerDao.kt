@@ -10,6 +10,8 @@ interface CustomerDao {
     @Query("SELECT * FROM customer order by time DESC")
     fun getAll(): LiveData<List<CustomerEntity>>
 
+    @Query("SELECT * FROM customer order by id ASC")
+    suspend fun getAllCustomerT(): List<CustomerEntity>
     @Query("SELECT id FROM customer order by id DESC LIMIT 1")
     fun getLastUser(): Int?
 

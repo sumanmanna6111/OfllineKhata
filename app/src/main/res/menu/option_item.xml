@@ -7,11 +7,14 @@
         android:icon="@drawable/baseline_search_24"
         android:title="Search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="ifRoom|collapseActionView" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/backup"
         android:title="Backup" />
+    <item
+        android:id="@+id/transfer"
+        android:title="Transfer" />
     <item
         android:id="@+id/setting"
         android:title="Setting" />

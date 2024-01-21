@@ -12,6 +12,8 @@ interface TransactionDao {
     @Query("SELECT * FROM tran")
     suspend fun getAll(): List<TransactionEntity>
 
+    @Query("SELECT * FROM tran order by id ASC")
+    suspend fun getAllTransactionT(): List<TransactionEntity>
     @Query("SELECT * FROM tran WHERE uid = :userid ORDER BY id DESC")
     fun getCustomerTran(userid: Int): LiveData<List<TransactionEntity>>
 

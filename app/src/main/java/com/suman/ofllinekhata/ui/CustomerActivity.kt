@@ -26,7 +26,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
-import com.suman.ofllinekhata.BuildConfig
 import com.suman.ofllinekhata.room.AppDatabase
 import com.suman.ofllinekhata.helper.PrefManager
 import com.suman.ofllinekhata.R
@@ -50,6 +49,7 @@ class CustomerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCustomerBinding
     private lateinit var customerViewModel: CustomerViewModel
+    private lateinit var prefManager: PrefManager
     private var customerList: ArrayList<CustomerEntity> = ArrayList()
     private lateinit var adapter: CustomerAdapter
     private var totalCustomer = 0
@@ -57,7 +57,7 @@ class CustomerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_customer)
         setSupportActionBar(binding.toolbar)
-
+        prefManager = PrefManager(this)
         val dao = AppDatabase.getDataBase(applicationContext).customerDao()
         val repository = CustomerRepository(dao)
         customerViewModel = ViewModelProvider(
@@ -112,14 +112,6 @@ class CustomerActivity : AppCompatActivity() {
             startActivity(Intent(this, AddCustomerActivity::class.java))
         }
         requestPermission()
-
-        val prefManager = PrefManager(this)
-        val lastBackUp: Long = prefManager.getLong("backup")
-        val hour = System.currentTimeMillis() - lastBackUp
-        if (hour > 14400000L) {
-            backup()
-        }
-
         getCustomer()
         checkPin()
     }
@@ -201,6 +193,11 @@ class CustomerActivity : AppCompatActivity() {
         customerViewModel.getCustomer().observe(this, Observer {
             adapter.updateAdapter(it)
             totalCustomer = it.size
+            val lastBackUp: Long = prefManager.getLong("backup")
+            val hour = System.currentTimeMillis() - lastBackUp
+            if (hour > 14400000L) {
+                backup()
+            }
         })
 
     }
@@ -242,6 +239,14 @@ class CustomerActivity : AppCompatActivity() {
             R.id.backup -> {
                 backup()
                 shareBackup()
+            }
+            R.id.transfer -> {
+                startActivity(
+                    Intent(
+                        this@CustomerActivity,
+                        TransferActivity::class.java
+                    )
+                )
             }
 
             R.id.about -> {

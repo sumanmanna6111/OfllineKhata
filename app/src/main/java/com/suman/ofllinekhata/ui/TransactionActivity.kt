@@ -170,11 +170,7 @@ class TransactionActivity : AppCompatActivity() {
     private fun addRecord() {
         var amount: Float = bottomSheet.edCustomerAmount.text.toString().toFloat()
         val description: String = bottomSheet.edCustomerDesc.text.toString()
-        val time: Long = System.currentTimeMillis()
 
-            //val db = AppDatabase.getDataBase(applicationContext)
-            //val customerDao = db.customerDao()
-            //val transactionDao = db.transactionDao()
             if (type == 0) amount = -amount
             try {
                 transactionViewModel.addTransaction(uid, type, description, amount)
