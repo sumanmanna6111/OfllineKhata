@@ -129,8 +129,8 @@ class TransactionActivity : AppCompatActivity() {
                         DetailsActivity::class.java
                     ).also {
                         it.putExtra("id", id)
-                        it.putExtra("name", name)
-                        it.putExtra("number", number)
+                        it.putExtra("name", this@TransactionActivity.name)
+                        it.putExtra("number", this@TransactionActivity.number)
                         it.putExtra("amount", balance)
                     }
                 )
@@ -169,13 +169,13 @@ class TransactionActivity : AppCompatActivity() {
 
     private fun addRecord() {
         var amount: Float = bottomSheet.edCustomerAmount.text.toString().toFloat()
-        val description: String = bottomSheet.edCustomerDesc.text.toString()
+        val description = bottomSheet.edCustomerDesc.text.toString()
 
-            if (type == 0) amount = -amount
+            if (type == 0){ amount = -amount}
             try {
+                val totalAmt: Float = balance + amount
                 transactionViewModel.addTransaction(uid, type, description, amount)
                 transactionViewModel.updateBalance(amount, uid)
-                val totalAmt: Float = amount
                 if (prefManager.getBoolean("sms")) {
                     val msgType: String = if (type == 0) {
                         if (totalAmt <= 0) {

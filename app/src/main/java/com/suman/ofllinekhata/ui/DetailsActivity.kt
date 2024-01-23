@@ -3,6 +3,7 @@ package com.suman.ofllinekhata.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -66,6 +67,7 @@ class DetailsActivity : AppCompatActivity() {
     private fun saveTran() {
         detailsViewModel.tranUpdate(if (binding.tranDetailIsClear.isChecked) 1 else 0, id)
         detailsViewModel.customerUpdate(amount, uid)
+        balance -= amount
         if (prefManager.getBoolean("sms")) {
             val msgType: String = if (balance <= 0) {
                 Config.paidDue
