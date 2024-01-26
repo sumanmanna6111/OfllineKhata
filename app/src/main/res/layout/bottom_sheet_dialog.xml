@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    style="@style/bottomSheetColor"
     android:background="@drawable/bottomsheet_background">
 
     <TextView
@@ -37,14 +38,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:checked="true"
-            android:text="Credit" />
+            android:text="@string/credit" />
 
         <RadioButton
             android:id="@+id/btn_bebit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Debit" />
+            android:text="@string/debit" />
     </RadioGroup>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -65,7 +66,7 @@
             android:id="@+id/ed_customer_amount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Amout"
+            android:hint="@string/amout"
             android:inputType="numberDecimal"
             android:maxLength="10"
             tools:ignore="SpeakableTextPresentCheck" />
@@ -89,10 +90,10 @@
             android:id="@+id/ed_customer_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Description"
+            android:hint="@string/description"
             android:inputType="textCapSentences|textMultiLine"
             android:maxLength="100"
-            android:maxLines="10"
+            android:maxLines="3"
             tools:ignore="SpeakableTextPresentCheck" />
     </com.google.android.material.textfield.TextInputLayout>
 

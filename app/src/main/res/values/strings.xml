@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">OfllineKhata</string>
     <string name="shop_name">Shop Name</string>
+    <string name="amout">Amout</string>
+    <string name="description">Description</string>
+    <string name="customer_mobile_number">Customer Mobile Number</string>
+    <string name="customer_name">Customer Name</string>
+    <string name="credit">Credit</string>
+    <string name="debit">Debit</string>
+    <string name="login">Login</string>
+    <string name="email">Email</string>
 </resources>

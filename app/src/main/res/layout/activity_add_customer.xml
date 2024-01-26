@@ -41,7 +41,7 @@
                 android:id="@+id/ed_customer_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Customer Name"
+                android:hint="@string/customer_name"
                 android:inputType="textCapWords"
                 tools:ignore="SpeakableTextPresentCheck" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -65,7 +65,7 @@
                 android:id="@+id/ed_customer_number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Customer Mobile Number"
+                android:hint="@string/customer_mobile_number"
                 android:inputType="phone"
                 android:maxLength="10"
                 tools:ignore="SpeakableTextPresentCheck" />
@@ -90,14 +90,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:checked="true"
-                android:text="Credit" />
+                android:text="@string/credit" />
 
             <RadioButton
                 android:id="@+id/btn_bebit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Debit" />
+                android:text="@string/debit" />
         </RadioGroup>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -118,12 +118,11 @@
                 android:id="@+id/ed_customer_amount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Amout"
+                android:hint="@string/amout"
                 android:inputType="numberDecimal"
                 android:maxLength="10"
                 tools:ignore="SpeakableTextPresentCheck" />
         </com.google.android.material.textfield.TextInputLayout>
-
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/il_cust_desc"
@@ -143,10 +142,10 @@
                 android:id="@+id/ed_customer_desc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Description"
+                android:hint="@string/description"
                 android:inputType="textCapSentences|textMultiLine"
                 android:maxLength="100"
-                android:maxLines="10"
+                android:maxLines="3"
                 tools:ignore="SpeakableTextPresentCheck" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -162,7 +161,6 @@
             app:cornerRadius="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

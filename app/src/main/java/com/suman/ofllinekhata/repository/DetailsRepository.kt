@@ -13,7 +13,7 @@ class DetailsRepository(private val database: AppDatabase) {
         return transactionDao.getTranDetails(id)
     }
 
-    fun loadById(uid: Int): LiveData<CustomerEntity>{
+    suspend fun loadById(uid: Int): CustomerEntity{
         return customerDao.loadAllById(uid)
     }
     suspend fun transactionUpdate (clear: Int, clearTime: Long, id: Int){

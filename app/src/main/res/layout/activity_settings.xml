@@ -43,7 +43,6 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="10dp"
                     android:text="Restore"
-                    android:textColor="@color/black"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -74,7 +73,6 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="10dp"
                     android:text="SMS Alert"
-                    android:textColor="@color/black"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -114,7 +112,6 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="10dp"
                     android:text="PIN Lock"
-                    android:textColor="@color/black"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -153,7 +150,6 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="10dp"
                     android:text="Rate Us"
-                    android:textColor="@color/black"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -184,7 +180,6 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="10dp"
                     android:text="Contact Us"
-                    android:textColor="@color/black"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

@@ -18,7 +18,7 @@ interface CustomerDao {
     @Query("SELECT SUM(`amount`) FROM customer WHERE amount > 0")
     fun getTotalDebit(): LiveData<Float?>
     @Query("SELECT * FROM customer WHERE id = :userId")
-    fun loadAllById(userId: Int): LiveData<CustomerEntity>
+    suspend fun loadAllById(userId: Int): CustomerEntity
     @Query("SELECT * FROM customer WHERE name LIKE :first AND " +
             "number LIKE :last LIMIT 1")
     fun findByName(first: String, last: String): CustomerEntity

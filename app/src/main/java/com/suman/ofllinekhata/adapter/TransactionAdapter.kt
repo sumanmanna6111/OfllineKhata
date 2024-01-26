@@ -42,16 +42,10 @@ class TransactionAdapter(private val list: ArrayList<TransactionEntity>): Recycl
             holder.date.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
             holder.amount.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
             holder.desc.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
-            holder.date.setTextColor(Color.RED)
-            holder.amount.setTextColor(Color.RED)
-            holder.desc.setTextColor(Color.RED)
         }else{
             holder.date.paintFlags = Paint.LINEAR_TEXT_FLAG
             holder.amount.paintFlags = Paint.LINEAR_TEXT_FLAG
             holder.desc.paintFlags = Paint.LINEAR_TEXT_FLAG
-            holder.date.setTextColor(Color.BLACK)
-            holder.amount.setTextColor(Color.BLACK)
-            holder.desc.setTextColor(Color.BLACK)
         }
         holder.date.text = SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.ENGLISH).format(Date(transaction.time))
         holder.amount.text = "\u20B9${transaction.amount}"

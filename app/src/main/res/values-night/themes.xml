@@ -12,6 +12,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="lollipop">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="android:textColor">@color/white</item>
+        <item name="android:windowBackground">@color/black</item>
     </style>
     <style name="AppTheme.SearchView" parent="Widget.AppCompat.SearchView">
         <item name="searchHintIcon">@null</item>
@@ -20,7 +22,19 @@
 
     <style name="DialogStyle" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="android:windowIsFloating">false</item>
-        <item name="android:statusBarColor" tools:targetApi="lollipop">@android:color/transparent</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@android:color/transparent</item>
+        <item name="bottomSheetStyle">@style/CustomBottomSheetStyle</item>
+    </style>
+
+    <style name="CustomBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+    <style name="bottomSheetColor" parent="">
+        <item name="android:backgroundTint" tools:targetApi="lollipop">@color/gray</item>
+    </style>
+
+    <style name="MyTextView" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/teal_200</item>
     </style>
 </resources>

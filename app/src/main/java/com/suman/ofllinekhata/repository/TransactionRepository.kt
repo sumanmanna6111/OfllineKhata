@@ -37,4 +37,8 @@ class TransactionRepository(private val database: AppDatabase) {
         customerDao.update(balance = amount, userid = uid)
     }
 
+    suspend fun getByUid(uid: Int): CustomerEntity{
+        return customerDao.loadAllById(uid)
+    }
+
 }

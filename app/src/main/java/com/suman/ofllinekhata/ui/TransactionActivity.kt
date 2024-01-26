@@ -49,9 +49,12 @@ class TransactionActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_transaction)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        val  database = AppDatabase.getDataBase(applicationContext)
+        val database = AppDatabase.getDataBase(applicationContext)
         val repository = TransactionRepository(database)
-        transactionViewModel = ViewModelProvider(this, TransactionViewModelFactory(repository))[TransactionViewModel::class.java]
+        transactionViewModel = ViewModelProvider(
+            this,
+            TransactionViewModelFactory(repository)
+        )[TransactionViewModel::class.java]
 
         adapter = TransactionAdapter(tranList)
         prefManager = PrefManager(this@TransactionActivity)
@@ -158,7 +161,7 @@ class TransactionActivity : AppCompatActivity() {
             if (balance < 0) {
                 binding.credit = "\u20B9${balance}"
                 binding.debit = "₹0.0"
-            }else{
+            } else {
                 binding.credit = "₹0.0"
                 binding.debit = "\u20B9${balance}"
             }
@@ -170,13 +173,16 @@ class TransactionActivity : AppCompatActivity() {
     private fun addRecord() {
         var amount: Float = bottomSheet.edCustomerAmount.text.toString().toFloat()
         val description = bottomSheet.edCustomerDesc.text.toString()
+        if (type == 0) {
+            amount = -amount
+        }
+        try {
+            transactionViewModel.addTransaction(uid, type, description, amount)
+            transactionViewModel.updateBalance(amount, uid)
 
-            if (type == 0){ amount = -amount}
-            try {
-                val totalAmt: Float = balance + amount
-                transactionViewModel.addTransaction(uid, type, description, amount)
-                transactionViewModel.updateBalance(amount, uid)
-                if (prefManager.getBoolean("sms")) {
+            if (prefManager.getBoolean("sms")) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val totalAmt: Float = transactionViewModel.getByUid(uid).amount
                     val msgType: String = if (type == 0) {
                         if (totalAmt <= 0) {
                             Config.purchaseDue
@@ -200,10 +206,11 @@ class TransactionActivity : AppCompatActivity() {
                     )
                     SMSManager.sendSMS(number, msg)
                 }
-
-            } catch (e: Exception) {
-                Log.d(TAG, "addRecord: ${e.printStackTrace()}")
             }
+
+        } catch (e: Exception) {
+            Log.d(TAG, "addRecord: ${e.printStackTrace()}")
+        }
 
         bottomSheet.edCustomerAmount.text = null
         bottomSheet.edCustomerDesc.text = null

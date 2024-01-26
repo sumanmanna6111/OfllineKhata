@@ -4,8 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.suman.ofllinekhata.repository.TransactionRepository
+import com.suman.ofllinekhata.room.entity.CustomerEntity
 import com.suman.ofllinekhata.room.entity.TransactionEntity
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class TransactionViewModel(private val transactionRepository: TransactionRepository): ViewModel() {
@@ -27,5 +30,12 @@ class TransactionViewModel(private val transactionRepository: TransactionReposit
         viewModelScope.launch(Dispatchers.IO) {
             transactionRepository.updateBalance(amount, uid)
         }
+    }
+
+    suspend fun getByUid(uid: Int): CustomerEntity{
+        val job = viewModelScope.async {
+            transactionRepository.getByUid(uid)
+        }
+        return job.await()
     }
 }

@@ -14,7 +14,7 @@ class DetailsViewModel(private val detailsRepository: DetailsRepository): ViewMo
     fun getTransaction(id: Int): LiveData<TransactionEntity>{
             return detailsRepository.getTransactionDetails(id)
     }
-    fun getCustomer(uid: Int): LiveData<CustomerEntity>{
+    suspend fun getCustomer(uid: Int): CustomerEntity{
         return detailsRepository.loadById(uid)
     }
 
