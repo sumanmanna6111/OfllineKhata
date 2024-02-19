@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore.AUTHORITY
 import android.provider.MediaStore.Files
+import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -238,7 +239,7 @@ class CustomerActivity : AppCompatActivity() {
 
             R.id.backup -> {
                 backup()
-                shareBackup()
+                //shareBackup()
             }
             R.id.transfer -> {
                 startActivity(
@@ -248,9 +249,6 @@ class CustomerActivity : AppCompatActivity() {
                     )
                 )
             }
-
-            R.id.about -> {
-            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -258,13 +256,16 @@ class CustomerActivity : AppCompatActivity() {
     private fun shareBackup() {
         try {
             if (totalCustomer > 0) {
-                val currentDBPath = getDatabasePath("khata.db").absolutePath
-                val uri = Uri.parse(currentDBPath)
-                val sendIntent = Intent(Intent.ACTION_SEND)
-                sendIntent.type = "*/*"
-                sendIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                sendIntent.putExtra(Intent.EXTRA_STREAM, uri)
-                startActivity(sendIntent)
+                val storage = Environment.getExternalStorageDirectory().absolutePath
+                if (File("$storage/OfflineKhata/backup.db").exists()){
+                    val uri = Uri.parse("$storage/OfflineKhata/backup.db")
+                    val sendIntent = Intent(Intent.ACTION_SEND)
+                    sendIntent.type = "application/octet-stream"
+                    sendIntent.putExtra(Intent.EXTRA_STREAM, uri)
+                    sendIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    startActivity(Intent.createChooser(sendIntent , "Share File"))
+                }
+
             }else{
                 Toast.makeText(this, "You have no transaction", Toast.LENGTH_SHORT).show()
             }
@@ -281,6 +282,18 @@ class CustomerActivity : AppCompatActivity() {
                 val storage = Environment.getExternalStorageDirectory().absolutePath
                 Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
                 Log.d("TAG", "onOptionsItemSelected: $storage")
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    if (Environment.isExternalStorageManager()){
+                        Log.d("TAG", "checkPermission: true")
+                    }else{
+                        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                            .setData(Uri.parse("package:$packageName"))
+                        startActivity(intent)
+                        return
+                    }
+
+                }
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                     File(currentDBPath).copyTo(File("$storage/OfflineKhata/backup.db"), true)
                     Toast.makeText(this, "Backup to OfflineKhata/backup.db", Toast.LENGTH_LONG)
