@@ -1,17 +1,12 @@
 package com.suman.ofllinekhata.ui
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore.AUTHORITY
-import android.provider.MediaStore.Files
-import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -22,24 +17,25 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
-import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
-import com.suman.ofllinekhata.room.AppDatabase
-import com.suman.ofllinekhata.helper.PrefManager
 import com.suman.ofllinekhata.R
 import com.suman.ofllinekhata.adapter.CustomerAdapter
 import com.suman.ofllinekhata.databinding.ActivityCustomerBinding
-import com.suman.ofllinekhata.room.entity.CustomerEntity
+import com.suman.ofllinekhata.helper.PrefManager
 import com.suman.ofllinekhata.interfaces.OnClickListener
 import com.suman.ofllinekhata.repository.CustomerRepository
+import com.suman.ofllinekhata.room.AppDatabase
+import com.suman.ofllinekhata.room.entity.CustomerEntity
 import com.suman.ofllinekhata.viewmodel.CustomerViewModel
 import com.suman.ofllinekhata.viewmodelfactory.CustomerViewModelFactory
+import de.raphaelebner.roomdatabasebackup.core.RoomBackup
 import kotlinx.coroutines.*
-import java.io.File
-import java.io.FileWriter
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
 import java.io.IOException
 
 
@@ -167,14 +163,11 @@ class CustomerActivity : AppCompatActivity() {
             }
         }*/
         var permissions = arrayOf(
-            Manifest.permission.SEND_SMS,
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.SEND_SMS
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions = arrayOf(
-                Manifest.permission.SEND_SMS,
-                Manifest.permission.READ_CONTACTS
+                Manifest.permission.SEND_SMS
             )
         }
         ActivityCompat.requestPermissions(this@CustomerActivity, permissions, 9)
@@ -194,13 +187,12 @@ class CustomerActivity : AppCompatActivity() {
         customerViewModel.getCustomer().observe(this, Observer {
             adapter.updateAdapter(it)
             totalCustomer = it.size
-            val lastBackUp: Long = prefManager.getLong("backup")
+            /*val lastBackUp: Long = prefManager.getLong("backup")
             val hour = System.currentTimeMillis() - lastBackUp
             if (hour > 14400000L) {
                 backup()
-            }
+            }*/
         })
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -227,6 +219,10 @@ class CustomerActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.backup -> {
+                Toast.makeText(this, "Features comming soon", Toast.LENGTH_SHORT).show()
+                //scopedBackup()
+            }
             R.id.setting -> {
                 startActivity(
                     Intent(
@@ -237,23 +233,11 @@ class CustomerActivity : AppCompatActivity() {
                 finish()
             }
 
-            R.id.backup -> {
-                backup()
-                //shareBackup()
-            }
-            R.id.transfer -> {
-                startActivity(
-                    Intent(
-                        this@CustomerActivity,
-                        TransferActivity::class.java
-                    )
-                )
-            }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun shareBackup() {
+    /*private fun shareBackup() {
         try {
             if (totalCustomer > 0) {
                 val storage = Environment.getExternalStorageDirectory().absolutePath
@@ -273,9 +257,52 @@ class CustomerActivity : AppCompatActivity() {
             e.printStackTrace()
         }
 
+    }*/
+    private fun scopedBackup(){
+        if (totalCustomer > 0) {
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            intent.type = "application/octet-stream"
+            intent.putExtra(Intent.EXTRA_TITLE, "khata.db")
+            resultBackup.launch(intent)
+        }else{
+            Toast.makeText(this, "Empty Customer list", Toast.LENGTH_SHORT).show()
+        }
+    }
+    val resultBackup = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+        if (it.resultCode == RESULT_OK){
+            it.data?.data?.let {uri : Uri ->
+                saveFile(uri)
+            }
+        }
     }
 
-    private fun backup() {
+    private fun saveFile(uri: Uri){
+            try {
+                val currentDBPath = getDatabasePath("khata.db")
+                Log.d(TAG, "saveFile: "+currentDBPath.length())
+                val parcelFileDescriptor = this.contentResolver.openFileDescriptor(uri,"w")
+                val fileOutputStream = FileOutputStream(parcelFileDescriptor?.fileDescriptor)
+                FileInputStream(currentDBPath).use {input ->
+                    fileOutputStream.use {output ->
+                        input.copyTo(output)
+                    }
+
+                }
+                val buffersize = 8 * 1024
+               // copyFile(input, fileOutputStream, buffersize)
+                fileOutputStream.close()
+                parcelFileDescriptor?.close()
+                Toast.makeText(this, "Backup completed", Toast.LENGTH_SHORT).show()
+                Log.d(TAG, "saveFile: success")
+                Log.d(TAG, "saveFile: "+currentDBPath.length())
+            } catch (e: FileNotFoundException) {
+                e.printStackTrace()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+    }
+    /*private fun backup() {
         try {
             if (totalCustomer > 0) {
                 val currentDBPath = getDatabasePath("khata.db").absolutePath
@@ -294,12 +321,10 @@ class CustomerActivity : AppCompatActivity() {
                     }
 
                 }
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                    File(currentDBPath).copyTo(File("$storage/OfflineKhata/backup.db"), true)
-                    Toast.makeText(this, "Backup to OfflineKhata/backup.db", Toast.LENGTH_LONG)
-                        .show()
-                    PrefManager(this).setLong("backup", System.currentTimeMillis())
-                }
+                File(currentDBPath).copyTo(File("$storage/OfflineKhata/backup.db"), true)
+                Toast.makeText(this, "Backup to OfflineKhata/backup.db", Toast.LENGTH_LONG)
+                    .show()
+                PrefManager(this).setLong("backup", System.currentTimeMillis())
             }else{
                 Toast.makeText(this, "You have no transaction", Toast.LENGTH_SHORT).show()
             }
@@ -307,7 +332,7 @@ class CustomerActivity : AppCompatActivity() {
             Log.e(TAG, "backup: ", e)
             Toast.makeText(this, "failed to write external storage", Toast.LENGTH_LONG).show()
         }
-    }
+    }*/
 
 
     private val startForPinResult =

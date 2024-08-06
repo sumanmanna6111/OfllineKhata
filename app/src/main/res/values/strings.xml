@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Offline Khata</string>
+    <string name="app_name">Udhar Khata</string>
     <string name="shop_name">Shop Name</string>
     <string name="amout">Amout</string>
     <string name="description">Description</string>
@@ -7,6 +7,27 @@
     <string name="customer_name">Customer Name</string>
     <string name="credit">Credit</string>
     <string name="debit">Debit</string>
-    <string name="login">Login</string>
-    <string name="email">Email</string>
+    <string name="login">Setup</string>
+    <string name="customer_add_button">Customer Add Button</string>
+    <string name="advance">Advance</string>
+    <string name="due">Due</string>
+    <string name="add_customer">Add Customer</string>
+    <string name="due_received">Due Received</string>
+    <string name="due_cleared">Due Cleared</string>
+    <string name="date_time">Date Time</string>
+    <string name="save">Save</string>
+    <string name="restore">Restore</string>
+    <string name="restore_your_old_data_from_backup_file">Restore your old data from backup file</string>
+    <string name="sms_alert">SMS Alert</string>
+    <string name="send_transaction_sms_from_your_mobile">Send transaction sms from your mobile</string>
+    <string name="pin_lock">PIN Lock</string>
+    <string name="to_prevent_unauthorized_access">To prevent unauthorized access</string>
+    <string name="rate_us">Rate Us</string>
+    <string name="rate_five_star_if_you_like_this_application">Rate five star if you like this application</string>
+    <string name="contact_us">Contact Us</string>
+    <string name="contact_us_for_any_kind_of_issues">Contact us for any kind of issues</string>
+    <string name="new_record">New Record</string>
+    <string name="send">Send</string>
+    <string name="receive">Receive</string>
+    <string name="add_transaction">Add Transaction</string>
 </resources>

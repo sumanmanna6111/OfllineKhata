@@ -14,11 +14,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
         android:layout_marginEnd="0dp"
-        android:drawableEnd="@drawable/baseline_cancel_24"
         android:padding="15dp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:drawableEndCompat="@drawable/baseline_cancel_24" />
 
     <RadioGroup
         android:id="@+id/due_type"
@@ -105,7 +105,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="16dp"
-        android:text="Add Transaction"
+        android:text="@string/add_transaction"
         android:textAllCaps="false"
         app:cornerRadius="20dp"
         android:background="@drawable/btn_back"

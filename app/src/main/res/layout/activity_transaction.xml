@@ -49,7 +49,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Due"
+                    android:text="@string/due"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -89,7 +89,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Advance"
+                    android:text="@string/advance"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -153,10 +153,10 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:clickable="true"
-            android:contentDescription="Customer Add Button"
+            android:contentDescription="@string/customer_add_button"
             android:focusable="true"
             android:textColor="@color/white"
-            android:text="New Record"
+            android:text="@string/new_record"
             android:textAllCaps="false"
             android:paddingStart="30dp"
             android:paddingEnd="30dp"

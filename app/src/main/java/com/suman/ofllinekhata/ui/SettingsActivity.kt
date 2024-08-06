@@ -13,6 +13,7 @@ import com.suman.ofllinekhata.helper.PathUtils
 import com.suman.ofllinekhata.helper.PrefManager
 import com.suman.ofllinekhata.databinding.ActivitySettingsBinding
 import com.suman.ofllinekhata.room.AppDatabase
+import de.raphaelebner.roomdatabasebackup.core.RoomBackup
 import java.io.File
 import java.io.IOException
 
@@ -74,15 +75,13 @@ class SettingsActivity : AppCompatActivity() {
                         val currentDBPath = getDatabasePath("khata.db").absolutePath
                         Log.d("TAG", "onOptionsItemSelected: $currentDBPath")
                         Log.d("TAG", "onOptionsItemSelected: $path")
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                            File(path).copyTo(
-                                File(
-                                    currentDBPath
-                                ), true
-                            )
-                            Toast.makeText(this, "backup imported successfully", Toast.LENGTH_LONG)
-                                .show()
-                        }
+                        File(path).copyTo(
+                            File(
+                                currentDBPath
+                            ), true
+                        )
+                        Toast.makeText(this, "backup imported successfully", Toast.LENGTH_LONG)
+                            .show()
                     } catch (e: IOException) {
                         e.printStackTrace()
                         Toast.makeText(this, "something went wrong", Toast.LENGTH_LONG).show()

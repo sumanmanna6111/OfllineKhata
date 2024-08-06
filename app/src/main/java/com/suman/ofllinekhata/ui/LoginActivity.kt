@@ -38,14 +38,14 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
-    fun setConfig(){
+    private fun setConfig(){
         if (prefManager.getString("config").isNullOrEmpty()){
             prefManager.setBoolean("sms", true)
             prefManager.setString("config","yes")
         }
     }
 
-    fun login(shopName: String){
+    private fun login(shopName: String){
         if (binding.edShopName.text.toString().isEmpty()) {
             binding.edShopName.error = "Enter Shop Name"
             return
